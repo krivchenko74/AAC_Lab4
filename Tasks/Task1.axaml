@@ -1,0 +1,92 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SortingDemo.Tasks.Task1">
+
+    <Grid RowDefinitions="Auto,*,Auto" ColumnDefinitions="*">
+
+        <!-- ====== TOP BAR (кнопки управления) ====== -->
+        <StackPanel Orientation="Horizontal" Margin="12" Grid.Row="0" Spacing="8" VerticalAlignment="Center">
+
+            <!-- Кнопки -->
+            <Button x:Name="StartBtn" Content="Старт"
+                    Width="100" Height="32"
+                    Background="#E0E0E0" Foreground="#333"
+                    BorderThickness="0" CornerRadius="6"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"/>
+            <Button x:Name="ShuffleBtn" Content="Перемешать"
+                    Width="120" Height="32"
+                    Background="#E0E0E0" Foreground="#333"
+                    BorderThickness="0" CornerRadius="6"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"/>
+
+            <!-- Выбор алгоритма -->
+            <ComboBox x:Name="AlgorithmBox" SelectedIndex="1"
+                      Width="180" Height="32"
+                      Background="#F5F5F5" Foreground="#333"
+                      BorderBrush="#CCC" BorderThickness="1"
+                      CornerRadius="6"
+                      HorizontalAlignment="Center">
+                <ComboBoxItem Content="Пузырьковая сортировка"/>
+                <ComboBoxItem Content="Сортировка выбором"/>
+                <ComboBoxItem Content="Быстрая сортировка"/>
+                <ComboBoxItem Content="Пирамидальная сортировка"/>
+            </ComboBox>
+
+            <!-- Задержка -->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
+                <TextBlock Text="Задержка:" VerticalAlignment="Center"/>
+                <NumericUpDown x:Name="DelayBox" Width="100" Height="32"
+                               Value="1500" Minimum="10" Maximum="3000"
+                               Background="#F5F5F5" Foreground="#333"
+                               BorderBrush="#CCC" BorderThickness="1"
+                               CornerRadius="6"
+                               HorizontalContentAlignment="Center"/>
+            </StackPanel>
+
+            <!-- Размер массива -->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
+                <TextBlock Text="Размер массива:" VerticalAlignment="Center"/>
+                <NumericUpDown x:Name="SizeBox" Width="100" Height="32"
+                               Value="10" Minimum="2" Maximum="100"
+                               Background="#F5F5F5" Foreground="#333"
+                               BorderBrush="#CCC" BorderThickness="1"
+                               CornerRadius="6"
+                               HorizontalContentAlignment="Center"/>
+            </StackPanel>
+
+</StackPanel>
+
+
+
+        <!-- ====== MIDDLE ROW ====== -->
+        <Grid Grid.Row="1" ColumnDefinitions="3*,2*" Margin="8">
+
+            <!-- LEFT: VISUALIZER -->
+            <Canvas x:Name="Visualizer" Background="#fefefe" Margin="4"/>
+
+            <!-- RIGHT: LOG + EXPLANATION -->
+            <Grid Grid.Column="1" RowDefinitions="2*,1*" Margin="4">
+                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                    <TextBox x:Name="LogBox"
+                             IsReadOnly="True"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"/>
+                </ScrollViewer>
+                <TextBlock x:Name="Explanation"
+                           Grid.Row="1"
+                           Margin="4"
+                           TextWrapping="Wrap"/>
+            </Grid>
+        </Grid>
+
+        <!-- ====== BOTTOM ROW ====== -->
+        <Border Grid.Row="2" Margin="8" Padding="6"
+                Background="#eeeeee"
+                CornerRadius="6">
+            <TextBlock x:Name="Legend" TextWrapping="Wrap"/>
+        </Border>
+
+    </Grid>
+</UserControl>

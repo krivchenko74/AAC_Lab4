@@ -1,0 +1,64 @@
+{
+  "version": 2,
+  "dgSpecHash": "8BaE1dTl/0Q=",
+  "success": true,
+  "projectFilePath": "/Users/slava/Downloads/SortingDemo_final/SortingDemo.csproj",
+  "expectedPackageFiles": [
+    "/Users/slava/.nuget/packages/avalonia/11.3.8/avalonia.11.3.8.nupkg.sha512",
+    "/Users/slava/.nuget/packages/avalonia.angle.windows.natives/2.1.25547.20250602/avalonia.angle.windows.natives.2.1.25547.20250602.nupkg.sha512",
+    "/Users/slava/.nuget/packages/avalonia.buildservices/11.3.1/avalonia.buildservices.11.3.1.nupkg.sha512",
+    "/Users/slava/.nuget/packages/avalonia.controls.datagrid/11.3.8/avalonia.controls.datagrid.11.3.8.nupkg.sha512",
+    "/Users/slava/.nuget/packages/avalonia.desktop/11.3.8/avalonia.desktop.11.3.8.nupkg.sha512",
+    "/Users/slava/.nuget/packages/avalonia.freedesktop/11.3.8/avalonia.freedesktop.11.3.8.nupkg.sha512",
+    "/Users/slava/.nuget/packages/avalonia.native/11.3.8/avalonia.native.11.3.8.nupkg.sha512",
+    "/Users/slava/.nuget/packages/avalonia.reactiveui/11.2.0/avalonia.reactiveui.11.2.0.nupkg.sha512",
+    "/Users/slava/.nuget/packages/avalonia.remote.protocol/11.3.8/avalonia.remote.protocol.11.3.8.nupkg.sha512",
+    "/Users/slava/.nuget/packages/avalonia.skia/11.3.8/avalonia.skia.11.3.8.nupkg.sha512",
+    "/Users/slava/.nuget/packages/avalonia.themes.fluent/11.2.0/avalonia.themes.fluent.11.2.0.nupkg.sha512",
+    "/Users/slava/.nuget/packages/avalonia.win32/11.3.8/avalonia.win32.11.3.8.nupkg.sha512",
+    "/Users/slava/.nuget/packages/avalonia.x11/11.3.8/avalonia.x11.11.3.8.nupkg.sha512",
+    "/Users/slava/.nuget/packages/dynamicdata/8.4.1/dynamicdata.8.4.1.nupkg.sha512",
+    "/Users/slava/.nuget/packages/harfbuzzsharp/8.3.1.1/harfbuzzsharp.8.3.1.1.nupkg.sha512",
+    "/Users/slava/.nuget/packages/harfbuzzsharp.nativeassets.linux/8.3.1.1/harfbuzzsharp.nativeassets.linux.8.3.1.1.nupkg.sha512",
+    "/Users/slava/.nuget/packages/harfbuzzsharp.nativeassets.macos/8.3.1.1/harfbuzzsharp.nativeassets.macos.8.3.1.1.nupkg.sha512",
+    "/Users/slava/.nuget/packages/harfbuzzsharp.nativeassets.webassembly/8.3.1.1/harfbuzzsharp.nativeassets.webassembly.8.3.1.1.nupkg.sha512",
+    "/Users/slava/.nuget/packages/harfbuzzsharp.nativeassets.win32/8.3.1.1/harfbuzzsharp.nativeassets.win32.8.3.1.1.nupkg.sha512",
+    "/Users/slava/.nuget/packages/microcom.runtime/0.11.0/microcom.runtime.0.11.0.nupkg.sha512",
+    "/Users/slava/.nuget/packages/reactiveui/20.1.1/reactiveui.20.1.1.nupkg.sha512",
+    "/Users/slava/.nuget/packages/skiasharp/2.88.9/skiasharp.2.88.9.nupkg.sha512",
+    "/Users/slava/.nuget/packages/skiasharp.nativeassets.linux/2.88.9/skiasharp.nativeassets.linux.2.88.9.nupkg.sha512",
+    "/Users/slava/.nuget/packages/skiasharp.nativeassets.macos/2.88.9/skiasharp.nativeassets.macos.2.88.9.nupkg.sha512",
+    "/Users/slava/.nuget/packages/skiasharp.nativeassets.webassembly/2.88.9/skiasharp.nativeassets.webassembly.2.88.9.nupkg.sha512",
+    "/Users/slava/.nuget/packages/skiasharp.nativeassets.win32/2.88.9/skiasharp.nativeassets.win32.2.88.9.nupkg.sha512",
+    "/Users/slava/.nuget/packages/splat/15.1.1/splat.15.1.1.nupkg.sha512",
+    "/Users/slava/.nuget/packages/system.componentmodel.annotations/5.0.0/system.componentmodel.annotations.5.0.0.nupkg.sha512",
+    "/Users/slava/.nuget/packages/system.diagnostics.diagnosticsource/8.0.1/system.diagnostics.diagnosticsource.8.0.1.nupkg.sha512",
+    "/Users/slava/.nuget/packages/system.io.pipelines/8.0.0/system.io.pipelines.8.0.0.nupkg.sha512",
+    "/Users/slava/.nuget/packages/system.reactive/6.0.1/system.reactive.6.0.1.nupkg.sha512",
+    "/Users/slava/.nuget/packages/system.text.encodings.web/8.0.0/system.text.encodings.web.8.0.0.nupkg.sha512",
+    "/Users/slava/.nuget/packages/system.text.json/8.0.3/system.text.json.8.0.3.nupkg.sha512",
+    "/Users/slava/.nuget/packages/tmds.dbus.protocol/0.21.2/tmds.dbus.protocol.0.21.2.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1603",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "SortingDemo depends on Avalonia.ReactiveUI (>= 11.1.8) but Avalonia.ReactiveUI 11.1.8 was not found. Avalonia.ReactiveUI 11.2.0 was resolved instead.",
+      "libraryId": "Avalonia.ReactiveUI",
+      "targetGraphs": [
+        "net7.0"
+      ]
+    },
+    {
+      "code": "NU1603",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "SortingDemo depends on Avalonia.Themes.Fluent (>= 11.1.8) but Avalonia.Themes.Fluent 11.1.8 was not found. Avalonia.Themes.Fluent 11.2.0 was resolved instead.",
+      "libraryId": "Avalonia.Themes.Fluent",
+      "targetGraphs": [
+        "net7.0"
+      ]
+    }
+  ]
+}

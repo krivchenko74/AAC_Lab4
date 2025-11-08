@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="SortingDemo.Tasks.Task2">
+
+    <Grid RowDefinitions="Auto,*" Margin="10">
+        
+        <Border Background="#f4f4f4" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+
+                <Button x:Name="LoadFileBtn" Width="130" Height="36"
+                        Content="Загрузить файл"/>
+                
+                <Button x:Name="SaveFileBtn" Width="130" Height="36"
+                        Content="Сохранить результат"/>
+
+                <Button x:Name="StartBtn" Width="100" Height="36"
+                        Content="Старт"/>
+
+                <Button x:Name="StopBtn" Width="100" Height="36"
+                        Content="Стоп"/>
+
+                <ComboBox x:Name="KeyBox" Width="200" Height="36"
+                          HorizontalAlignment="Left"
+                          PlaceholderText="Ключ сортировки"/>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Задержка:" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                    <NumericUpDown x:Name="DelayBox" Width="100" Height="36"
+                                   Minimum="10" Maximum="3000" Value="500"/>
+                </StackPanel>
+
+            </StackPanel>
+        </Border>
+        
+        <Grid Grid.Row="1" ColumnDefinitions="2*,*" RowDefinitions="*,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+
+            <!-- Обёртка для таблицы (чтобы видеть область и отладить) -->
+            <Border Grid.Row="0" Grid.Column="0"
+                    Background="#FFFFFF"
+                    BorderBrush="#AAAAAA"
+                    BorderThickness="10"
+                    CornerRadius="6"
+                    Padding="6"
+                    MinWidth="200" MinHeight="200">
+                <DataGrid x:Name="Table"
+                          AutoGenerateColumns="True"
+                          CanUserResizeColumns="True"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+            </Border>
+
+            <!-- Логи -->
+            <Border Grid.Row="0" Grid.Column="1"
+                    Background="White" BorderBrush="#ccc" BorderThickness="1"
+                    CornerRadius="6">
+                <TextBox x:Name="LogBox"
+                         AcceptsReturn="True" IsReadOnly="True"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         Margin="8"/>
+            </Border>
+
+            <!-- Пояснение -->
+            <Border Grid.Row="1" Grid.Column="1"
+                    Background="#fafafa" BorderBrush="#ddd" BorderThickness="1"
+                    CornerRadius="6" Padding="8">
+                <TextBlock x:Name="Explanation" TextWrapping="Wrap"/>
+            </Border>
+
+            <!-- Легенда -->
+            <Border Grid.Row="2" Grid.Column="1"
+                    Background="#fafafa" BorderBrush="#ddd" BorderThickness="1"
+                    CornerRadius="6" Padding="8">
+                <TextBlock x:Name="Legend" TextWrapping="Wrap"/>
+            </Border>
+
+        </Grid>
+
+
+
+    </Grid>
+
+</UserControl>
