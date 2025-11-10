@@ -1,85 +1,163 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="using:SortingDemo.Tasks"
              x:Class="SortingDemo.Tasks.Task2">
 
-    <Grid RowDefinitions="Auto,*" Margin="10">
-        
-        <Border Background="#f4f4f4" CornerRadius="10" Padding="10" Margin="0,0,0,10">
+    <UserControl.Resources>
+        <local:BoolToOpacityConverter x:Key="BoolToOpacity"/>
+        <local:BoolToFontWeightConverter x:Key="BoolToFontWeight"/>
+        <local:StringToBrushConverter x:Key="StringToBrush"/>
+        <local:BoolToBorderThicknessConverter x:Key="BoolToBorderThickness"/>
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto" Margin="15">
+        <!-- Панель управления -->
+        <Border Background="#f8f9fa" CornerRadius="10" Padding="12" Margin="0,0,0,10">
             <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-
-                <Button x:Name="LoadFileBtn" Width="130" Height="36"
-                        Content="Загрузить файл"/>
+                <Button x:Name="LoadFileBtn" Width="140" Height="36" Content="Загрузить CSV"/>
+                <Button x:Name="SaveFileBtn" Width="160" Height="36" Content="Сохранить результат"/>
                 
-                <Button x:Name="SaveFileBtn" Width="130" Height="36"
-                        Content="Сохранить результат"/>
+                <ComboBox x:Name="MethodBox" Width="200" Height="36" SelectedIndex="0">
+                    <ComboBoxItem>Прямое слияние</ComboBoxItem>
+                    <ComboBoxItem>Естественное слияние</ComboBoxItem>
+                    <ComboBoxItem>Многопутевое слияние</ComboBoxItem>
+                </ComboBox>
 
-                <Button x:Name="StartBtn" Width="100" Height="36"
-                        Content="Старт"/>
+                <ComboBox x:Name="KeyBox" Width="200" Height="36" PlaceholderText="Ключ сортировки"/>
 
-                <Button x:Name="StopBtn" Width="100" Height="36"
-                        Content="Стоп"/>
-
-                <ComboBox x:Name="KeyBox" Width="200" Height="36"
-                          HorizontalAlignment="Left"
-                          PlaceholderText="Ключ сортировки"/>
+                <Button x:Name="StartBtn" Width="100" Height="36" Content="Старт"/>
+                <Button x:Name="StopBtn" Width="100" Height="36" Content="Стоп"/>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="Задержка:" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                    <NumericUpDown x:Name="DelayBox" Width="100" Height="36"
-                                   Minimum="10" Maximum="3000" Value="500"/>
+                    <TextBlock Text="Задержка:" Margin="10,0,5,0"/>
+                    <NumericUpDown x:Name="DelayBox" Width="100" Height="36" Minimum="100" Maximum="3000" Value="400"/>
                 </StackPanel>
-
             </StackPanel>
         </Border>
-        
-        <Grid Grid.Row="1" ColumnDefinitions="2*,*" RowDefinitions="*,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
 
-            <!-- Обёртка для таблицы (чтобы видеть область и отладить) -->
-            <Border Grid.Row="0" Grid.Column="0"
-                    Background="#FFFFFF"
-                    BorderBrush="#AAAAAA"
-                    BorderThickness="10"
-                    CornerRadius="6"
-                    Padding="6"
-                    MinWidth="200" MinHeight="200">
-                <DataGrid x:Name="Table"
-                          AutoGenerateColumns="True"
-                          CanUserResizeColumns="True"
-                          HorizontalAlignment="Stretch"
-                          VerticalAlignment="Stretch"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+        <!-- Основная часть -->
+        <Grid Grid.Row="1" ColumnDefinitions="2*,3*" ColumnSpacing="15">
+            <!-- Таблица -->
+            <Border Grid.Column="0" Background="White" BorderBrush="#ddd" BorderThickness="1" CornerRadius="8" Padding="8">
+                <ScrollViewer>
+                    <ItemsControl x:Name="DataTable">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><StackPanel/></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="6" Margin="3" Padding="10,6"
+                                        Background="{Binding BgColor}" BorderBrush="#ccc" BorderThickness="1">
+                                    <Border.Transitions>
+                                        <Transitions>
+                                            <BrushTransition Property="Background" Duration="0:0:0.3"/>
+                                        </Transitions>
+                                    </Border.Transitions>
+                                    <TextBlock Text="{Binding Text}" FontFamily="Consolas" FontSize="13"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
             </Border>
 
-            <!-- Логи -->
-            <Border Grid.Row="0" Grid.Column="1"
-                    Background="White" BorderBrush="#ccc" BorderThickness="1"
-                    CornerRadius="6">
-                <TextBox x:Name="LogBox"
-                         AcceptsReturn="True" IsReadOnly="True"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         Margin="8"/>
-            </Border>
+            <!-- Два окна справа -->
+            <Grid Grid.Column="1" RowDefinitions="*,*" RowSpacing="15">
+                <!-- 1. QuickSort + Heap -->
+                <Border Grid.Row="0" Background="#f8f9fa" BorderBrush="#ddd" BorderThickness="1" CornerRadius="8" Padding="12">
+                    <StackPanel Spacing="10">
+                        <TextBlock x:Name="SortHeader" Text="Процесс сортировки" FontWeight="Bold" FontSize="15" Foreground="#d32f2f"/>
+                        <ScrollViewer Height="300">
+                            <ItemsControl x:Name="QuickSortAnimation" Margin="5">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{Binding BgColor}"
+                                                BorderBrush="BlueViolet"
+                                                BorderThickness="{Binding BorderThickness, Converter={StaticResource BoolToBorderThickness}}"
+                                                CornerRadius="4" Margin="2" Padding="6">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
 
-            <!-- Пояснение -->
-            <Border Grid.Row="1" Grid.Column="1"
-                    Background="#fafafa" BorderBrush="#ddd" BorderThickness="1"
-                    CornerRadius="6" Padding="8">
-                <TextBlock x:Name="Explanation" TextWrapping="Wrap"/>
-            </Border>
+                                                <TextBlock Text="→" Grid.Column="0" Margin="0,0,8,0"
+                                                           Opacity="{Binding ShowArrow, Converter={StaticResource BoolToOpacity}}"
+                                                           FontWeight="Bold" Foreground="#666"/>
 
-            <!-- Легенда -->
-            <Border Grid.Row="2" Grid.Column="1"
-                    Background="#fafafa" BorderBrush="#ddd" BorderThickness="1"
-                    CornerRadius="6" Padding="8">
-                <TextBlock x:Name="Legend" TextWrapping="Wrap"/>
-            </Border>
+                                                <TextBlock Text="{Binding Text}" Grid.Column="1"
+                                                           FontWeight="{Binding IsTitle, Converter={StaticResource BoolToFontWeight}}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
 
+                <!-- 2. Процесс слияния (3 столбца) -->
+                <Border Grid.Row="1" Background="#f8f9fa" BorderBrush="#ddd" BorderThickness="1" CornerRadius="8" Padding="12">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Процесс слияния" FontWeight="Bold" FontSize="15" Foreground="#1976d2"/>
+                        <ScrollViewer>
+                            <Grid ColumnDefinitions="*,*,*">
+                                <!-- Левый поток -->
+                                <Border Grid.Column="0" Background="#e3f2fd" CornerRadius="6" Padding="8" Margin="2">
+                                    <ScrollViewer MaxHeight="250">
+                                        <ItemsControl x:Name="MergeLeft">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid ColumnDefinitions="Auto,10,*" Margin="1">
+                                                        <Path Data="M 0 0 L 10 5 L 0 10 Z" Fill="#1976d2" Width="10" Height="10"
+                                                              Opacity="{Binding ShowArrow, Converter={StaticResource BoolToOpacity}}"/>
+                                                        <TextBlock Grid.Column="2" Text="{Binding Text}" FontFamily="Consolas" FontSize="11"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </Border>
+
+                                <!-- Правый поток -->
+                                <Border Grid.Column="1" Background="#e8f5e8" CornerRadius="6" Padding="8" Margin="2">
+                                    <ScrollViewer MaxHeight="250">
+                                        <ItemsControl x:Name="MergeRight">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid ColumnDefinitions="Auto,10,*" Margin="1">
+                                                        <Path Data="M 0 0 L 10 5 L 0 10 Z" Fill="#388e3c" Width="10" Height="10"
+                                                              Opacity="{Binding ShowArrow, Converter={StaticResource BoolToOpacity}}"/>
+                                                        <TextBlock Grid.Column="2" Text="{Binding Text}" FontFamily="Consolas" FontSize="11"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </Border>
+
+                                <!-- Результат -->
+                                <Border Grid.Column="2" Background="#f5f5f5" CornerRadius="6" Padding="8" Margin="2">
+                                    <ScrollViewer MaxHeight="250">
+                                        <ItemsControl x:Name="MergeResult">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Text}" FontFamily="Consolas" FontSize="11" Foreground="#555"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </ScrollViewer>
+                    </StackPanel>
+                </Border>
+            </Grid>
         </Grid>
 
-
-
+        <!-- Статус -->
+        <TextBlock Grid.Row="2" x:Name="StatusText" FontSize="12" Foreground="#666" Margin="0,10,0,0"/>
     </Grid>
-
 </UserControl>
