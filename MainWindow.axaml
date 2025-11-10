@@ -13,5 +13,9 @@
         <TabItem Header="Задание 2">
             <tasks:Task2/>
         </TabItem>
+        
+        <TabItem Header="Задание 3">
+            <tasks:Task3/>
+        </TabItem>
     </TabControl>
 </Window>

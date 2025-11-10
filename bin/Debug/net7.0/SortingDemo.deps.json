@@ -12,7 +12,9 @@
           "Avalonia.Controls.DataGrid": "11.3.8",
           "Avalonia.Desktop": "11.3.8",
           "Avalonia.ReactiveUI": "11.2.0",
-          "Avalonia.Themes.Fluent": "11.2.0"
+          "Avalonia.Themes.Fluent": "11.2.0",
+          "OxyPlot.Avalonia": "2.1.0",
+          "OxyPlot.Core": "2.2.0"
         },
         "runtime": {
           "SortingDemo.dll": {}
@@ -345,6 +347,26 @@
           }
         }
       },
+      "OxyPlot.Avalonia/2.1.0": {
+        "dependencies": {
+          "Avalonia": "11.3.8",
+          "OxyPlot.Core": "2.2.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/OxyPlot.Avalonia.dll": {
+            "assemblyVersion": "2.1.0.0",
+            "fileVersion": "2.1.0.0"
+          }
+        }
+      },
+      "OxyPlot.Core/2.2.0": {
+        "runtime": {
+          "lib/net6.0/OxyPlot.dll": {
+            "assemblyVersion": "2.2.0.0",
+            "fileVersion": "2.2.0.0"
+          }
+        }
+      },
       "ReactiveUI/20.1.1": {
         "dependencies": {
           "DynamicData": "8.4.1",
@@ -645,6 +667,20 @@
       "sha512": "sha512-MEnrZ3UIiH40hjzMDsxrTyi8dtqB5ziv3iBeeU4bXsL/7NLSal9F1lZKpK+tfBRnUoDSdtcW3KufE4yhATOMCA==",
       "path": "microcom.runtime/0.11.0",
       "hashPath": "microcom.runtime.0.11.0.nupkg.sha512"
+    },
+    "OxyPlot.Avalonia/2.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-eYIRqGFeIKg2Iv4kdcfxbQvfqmApqBe556WZjlQ0MU3gH+KRVetigYSFFi74yyUEFLI9kbNwAvS41FeTHgZBrQ==",
+      "path": "oxyplot.avalonia/2.1.0",
+      "hashPath": "oxyplot.avalonia.2.1.0.nupkg.sha512"
+    },
+    "OxyPlot.Core/2.2.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-QhXNdXR5FPpro/VoLx3BOp6AhQo7YrbfmWEZ9cgY+pnYM7RYORZjnu+aDMA8ka9A1r8hLkX//NbCPZNUv+l8qA==",
+      "path": "oxyplot.core/2.2.0",
+      "hashPath": "oxyplot.core.2.2.0.nupkg.sha512"
     },
     "ReactiveUI/20.1.1": {
       "type": "package",

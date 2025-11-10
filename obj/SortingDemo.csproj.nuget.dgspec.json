@@ -62,6 +62,14 @@
             "Avalonia.Themes.Fluent": {
               "target": "Package",
               "version": "[11.1.8, )"
+            },
+            "OxyPlot.Avalonia": {
+              "target": "Package",
+              "version": "[2.1.0, )"
+            },
+            "OxyPlot.Core": {
+              "target": "Package",
+              "version": "[2.2.0, )"
             }
           },
           "imports": [

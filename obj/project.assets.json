@@ -441,6 +441,32 @@
           "lib/net5.0/MicroCom.Runtime.dll": {}
         }
       },
+      "OxyPlot.Avalonia/2.1.0": {
+        "type": "package",
+        "dependencies": {
+          "Avalonia": "0.10.11",
+          "OxyPlot.Core": "2.1.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/OxyPlot.Avalonia.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/OxyPlot.Avalonia.dll": {}
+        }
+      },
+      "OxyPlot.Core/2.2.0": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/OxyPlot.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/OxyPlot.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "ReactiveUI/20.1.1": {
         "type": "package",
         "dependencies": {
@@ -1275,6 +1301,39 @@
         "microcom.runtime.nuspec"
       ]
     },
+    "OxyPlot.Avalonia/2.1.0": {
+      "sha512": "eYIRqGFeIKg2Iv4kdcfxbQvfqmApqBe556WZjlQ0MU3gH+KRVetigYSFFi74yyUEFLI9kbNwAvS41FeTHgZBrQ==",
+      "type": "package",
+      "path": "oxyplot.avalonia/2.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/OxyPlot.Avalonia.dll",
+        "oxyplot.avalonia.2.1.0.nupkg.sha512",
+        "oxyplot.avalonia.nuspec"
+      ]
+    },
+    "OxyPlot.Core/2.2.0": {
+      "sha512": "QhXNdXR5FPpro/VoLx3BOp6AhQo7YrbfmWEZ9cgY+pnYM7RYORZjnu+aDMA8ka9A1r8hLkX//NbCPZNUv+l8qA==",
+      "type": "package",
+      "path": "oxyplot.core/2.2.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "OxyPlot_128.png",
+        "README.md",
+        "lib/net462/OxyPlot.dll",
+        "lib/net462/OxyPlot.xml",
+        "lib/net6.0/OxyPlot.dll",
+        "lib/net6.0/OxyPlot.xml",
+        "lib/net8.0/OxyPlot.dll",
+        "lib/net8.0/OxyPlot.xml",
+        "lib/netstandard2.0/OxyPlot.dll",
+        "lib/netstandard2.0/OxyPlot.xml",
+        "oxyplot.core.2.2.0.nupkg.sha512",
+        "oxyplot.core.nuspec"
+      ]
+    },
     "ReactiveUI/20.1.1": {
       "sha512": "9hNPknWjijnaSWs6auypoXqUptPZcRpUypF+cf1zD50fgW+SEoQda502N3fVZ2eWPcaiUad+z6GaLwOWmUVHNw==",
       "type": "package",
@@ -1819,7 +1878,9 @@
       "Avalonia.Controls.DataGrid >= 11.3.8",
       "Avalonia.Desktop >= 11.3.8",
       "Avalonia.ReactiveUI >= 11.1.8",
-      "Avalonia.Themes.Fluent >= 11.1.8"
+      "Avalonia.Themes.Fluent >= 11.1.8",
+      "OxyPlot.Avalonia >= 2.1.0",
+      "OxyPlot.Core >= 2.2.0"
     ]
   },
   "packageFolders": {
@@ -1883,6 +1944,14 @@
           "Avalonia.Themes.Fluent": {
             "target": "Package",
             "version": "[11.1.8, )"
+          },
+          "OxyPlot.Avalonia": {
+            "target": "Package",
+            "version": "[2.1.0, )"
+          },
+          "OxyPlot.Core": {
+            "target": "Package",
+            "version": "[2.2.0, )"
           }
         },
         "imports": [

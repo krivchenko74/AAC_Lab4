@@ -30,3 +30,6 @@ build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
 
 [/Users/slava/Downloads/SortingDemo_final/Tasks/Task2.axaml]
 build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml
+
+[/Users/slava/Downloads/SortingDemo_final/Tasks/Task3/Task3.axaml]
+build_metadata.AdditionalFiles.SourceItemGroup = AvaloniaXaml

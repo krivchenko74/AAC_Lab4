@@ -279,12 +279,12 @@ namespace SortingDemo.Tasks
                 async (i, j) => await ReportSwapAnimated(i, j, delay),
                 async() => RefreshColors(),
                 _sortedIndices,
+                Log,
                 async (l, r) => await HighlightRange(l, r)
             );
             // finalize: mark all sorted
             for (int i = 0; i < _array.Count; i++) _sortedIndices.Add(i);
             RefreshColors();
-            Log("Sorting completed");
             _startBtn.IsEnabled = true;
             _shuffleBtn.IsEnabled = true;
         }
@@ -292,7 +292,6 @@ namespace SortingDemo.Tasks
         // Helpers: compare and swap with logs and animations
         private async Task ReportCompare(int i, int j, int delay)
         {
-            Log($"compare {_array[i]} {_array[j]}");
             _activeIndices.Clear();
             if (i >= 0 && i < _array.Count) _activeIndices.Add(i);
             if (j >= 0 && j < _array.Count) _activeIndices.Add(j);
@@ -304,9 +303,6 @@ namespace SortingDemo.Tasks
         {
             if (_visualizer == null) return;
             if (i == j) return;
-
-            Log($"swap {_array[i]} {_array[j]}");
-
             var c1 = _itemControls[i];
             var c2 = _itemControls[j];
             var p1 = _positions[i];
@@ -314,8 +310,7 @@ namespace SortingDemo.Tasks
 
             var steps = Math.Max(3, delay / 16);
             var stepDelay = delay / (double)steps;
-
-            // Анимация перемещения
+            
             for (var s = 1; s <= steps; s++)
             {
                 var t = s / (double)steps;
@@ -325,8 +320,7 @@ namespace SortingDemo.Tasks
                 Canvas.SetTop(c2, Lerp(p2.y, p1.y, t));
                 await Task.Delay((int)stepDelay);
             }
-
-            // Фиксируем финальные позиции
+            
             Canvas.SetLeft(c1, p2.x);
             Canvas.SetTop(c1, p2.y);
             Canvas.SetLeft(c2, p1.x);

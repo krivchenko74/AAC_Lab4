@@ -14,6 +14,7 @@ public interface IAlgorithm
         Func<int, int, Task> onSwap,
         Func<Task> onRefresh,
         HashSet<int> sorted,
-        Func<int, int, Task>? onHighlight = null 
+        Action<string> Log,
+        Func<int, int, Task>? onHighlight = null
         );
 }

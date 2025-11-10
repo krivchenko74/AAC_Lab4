@@ -31,7 +31,7 @@
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="Задержка:" Margin="10,0,5,0"/>
-                    <NumericUpDown x:Name="DelayBox" Width="100" Height="36" Minimum="100" Maximum="3000" Value="400"/>
+                    <NumericUpDown x:Name="DelayBox" Width="100" Height="36" Minimum="100" Maximum="10000" Value="2000"/>
                 </StackPanel>
             </StackPanel>
         </Border>
