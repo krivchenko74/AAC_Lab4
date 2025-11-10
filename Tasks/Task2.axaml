@@ -8,7 +8,6 @@
     <UserControl.Resources>
         <local:BoolToOpacityConverter x:Key="BoolToOpacity"/>
         <local:BoolToFontWeightConverter x:Key="BoolToFontWeight"/>
-        <local:StringToBrushConverter x:Key="StringToBrush"/>
         <local:BoolToBorderThicknessConverter x:Key="BoolToBorderThickness"/>
     </UserControl.Resources>
 

@@ -21,14 +21,19 @@ namespace SortingDemo.Tasks
     public partial class Task2 : UserControl, INotifyPropertyChanged
     {
         private List<string[]> _data = new();
-        private ObservableCollection<DisplayRow> _tableRows = new();
-        private ObservableCollection<MergeStep> _quickSortSteps = new();
-        private ObservableCollection<MergeStep> _mergeLeft = new();
-        private ObservableCollection<MergeStep> _mergeRight = new();
-        private ObservableCollection<MergeStep> _mergeResult = new();
+        private readonly ObservableCollection<DisplayRow> _tableRows = new();
+        private readonly ObservableCollection<MergeStep> _quickSortSteps = new();
+        private readonly ObservableCollection<MergeStep> _mergeLeft = new();
+        private readonly ObservableCollection<MergeStep> _mergeRight = new();
+        private readonly ObservableCollection<MergeStep> _mergeResult = new();
+
         private bool _stopRequested = false;
-        private string _tempDir = Path.Combine(Path.GetTempPath(), "ExtSort_" + Guid.NewGuid().ToString("N")[..8]);
-        private List<string> _resultBuffer = new();
+        private readonly string _tempDir = Path.Combine(Path.GetTempPath(), "ExtSort_" + Guid.NewGuid().ToString("N")[..8]);
+        private readonly List<string> _tempFiles = new();
+        private readonly List<string> _resultBuffer = new(11);
+
+        // Пул объектов — для повторного использования
+        private readonly Queue<MergeStep> _stepPool = new();
 
         public Task2()
         {
@@ -44,11 +49,49 @@ namespace SortingDemo.Tasks
 
             LoadFileBtn.Click += LoadFileBtn_Click;
             SaveFileBtn.Click += SaveFileBtn_Click;
-            StartBtn.Click += async (_, __) => await StartSort();
+            StartBtn.Click += StartBtn_Click;
             StopBtn.Click += (_, __) => _stopRequested = true;
+
+            PreallocatePool(5000); // Хватит на 1M+ строк
         }
 
-        #region === Загрузка ===
+        private void PreallocatePool(int count)
+        {
+            for (int i = 0; i < count; i++)
+                _stepPool.Enqueue(new MergeStep());
+        }
+
+        private MergeStep RentStep()
+        {
+            return _stepPool.Count > 0 ? _stepPool.Dequeue() : new MergeStep();
+        }
+
+        private void ReturnStep(MergeStep step)
+        {
+            step.Text = "";
+            step.BgColor = "#ffffff";
+            step.BorderColor = "Transparent";
+            step.BorderThickness = 0;
+            step.ShowArrow = false;
+            step.IsTitle = false;
+            _stepPool.Enqueue(step);
+        }
+
+        private void ReturnAllSteps(ObservableCollection<MergeStep> collection)
+        {
+            foreach (var step in collection.ToList())
+            {
+                ReturnStep(step);
+                collection.Remove(step);
+            }
+        }
+
+        #region === UI Events ===
+
+        private async void StartBtn_Click(object? sender, RoutedEventArgs e)
+        {
+            await StartSort();
+        }
 
         private async void LoadFileBtn_Click(object? sender, RoutedEventArgs e)
         {
@@ -56,6 +99,21 @@ namespace SortingDemo.Tasks
             var result = await dlg.ShowAsync(this.FindAncestorOfType<Window>());
             if (result?.Length > 0) LoadCsv(result[0]);
         }
+
+        private void SaveFileBtn_Click(object? sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "sorted_result.csv");
+                File.WriteAllLines(path, _tableRows.Skip(1).Select(r => r.Text.Replace(" | ", ";")), Encoding.UTF8);
+                Log($"Сохранено: {path}");
+            }
+            catch (Exception ex) { Log($"Ошибка: {ex.Message}"); }
+        }
+
+        #endregion
+
+        #region === Загрузка ===
 
         private void LoadCsv(string path)
         {
@@ -96,6 +154,7 @@ namespace SortingDemo.Tasks
             _stopRequested = false;
             ClearAnimation();
             _resultBuffer.Clear();
+            CleanupTempFiles();
 
             string method = ((ComboBoxItem)MethodBox.SelectedItem)?.Content?.ToString() ?? "";
             string keyName = KeyBox.SelectedItem?.ToString() ?? "";
@@ -106,28 +165,41 @@ namespace SortingDemo.Tasks
 
             Log($"Запуск: {method} по '{keyName}'");
 
-            if (method.Contains("прямое", StringComparison.OrdinalIgnoreCase))
-                await DirectMergeSort(keyIndex, delay);
-            else if (method.Contains("естественное", StringComparison.OrdinalIgnoreCase))
-                await NaturalMergeSort(keyIndex, delay);
-            else
-                await MultiwayMergeSort(keyIndex, delay);
+            try
+            {
+                if (method.Contains("прямое", StringComparison.OrdinalIgnoreCase))
+                    await DirectMergeSort(keyIndex, delay);
+                else if (method.Contains("естественное", StringComparison.OrdinalIgnoreCase))
+                    await NaturalMergeSort(keyIndex, delay);
+                else
+                    await MultiwayMergeSort(keyIndex, delay);
 
-            if (!_stopRequested) Log("Сортировка завершена");
+                if (!_stopRequested) Log("Сортировка завершена");
+            }
+            catch (Exception ex)
+            {
+                Log($"Ошибка сортировки: {ex.Message}");
+            }
         }
 
         private void ClearAnimation()
         {
-            _quickSortSteps.Clear();
-            _mergeLeft.Clear();
-            _mergeRight.Clear();
-            _mergeResult.Clear();
-            _resultBuffer.Clear();
+            ReturnAllSteps(_quickSortSteps);
+            ReturnAllSteps(_mergeLeft);
+            ReturnAllSteps(_mergeRight);
+            ReturnAllSteps(_mergeResult);
+        }
+
+        private void CleanupTempFiles()
+        {
+            foreach (var file in _tempFiles)
+                try { if (File.Exists(file)) File.Delete(file); } catch { }
+            _tempFiles.Clear();
         }
 
         #endregion
 
-        #region === QuickSort (итеративный, с Render) ===
+        #region === QuickSort ===
 
         private async Task QuickSortWithAnimation(List<string[]> chunk, int keyIdx, int delay)
         {
@@ -136,20 +208,11 @@ namespace SortingDemo.Tasks
             Log($"[QuickSort] Завершено");
         }
 
-        private async Task QuickSortHoare(
-            List<string[]> arr,
-            int left,
-            int right,
-            int keyIdx,
-            int delay)
+        private async Task QuickSortHoare(List<string[]> arr, int left, int right, int keyIdx, int delay)
         {
-            Log($"[Hoare] Рекурсия: [{left}..{right}] (размер: {right - left + 1})");
-
             if (left >= right || _stopRequested) return;
 
             var pivotIndex = await PartitionHoare(arr, left, right, keyIdx, delay);
-            Log($"[Hoare] Pivot зафиксирован на индексе: {pivotIndex}");
-
             await QuickSortHoare(arr, left, pivotIndex, keyIdx, delay);
             await QuickSortHoare(arr, pivotIndex + 1, right, keyIdx, delay);
         }
@@ -158,9 +221,7 @@ namespace SortingDemo.Tasks
         {
             int mid = left + (right - left) / 2;
             var pivotValue = arr[mid][keyIdx];
-
-            int i = left - 1;
-            int j = right + 1;
+            int i = left - 1, j = right + 1;
 
             await ShowQuickSortStep(arr, keyIdx, mid, left, right, null, null, null, null, delay, "Выбор pivot");
 
@@ -169,91 +230,62 @@ namespace SortingDemo.Tasks
                 do { i++; } while (i <= right && Compare(arr[i][keyIdx], pivotValue) < 0);
                 do { j--; } while (j >= left && Compare(arr[j][keyIdx], pivotValue) > 0);
 
-                // ← СРАВНЕНИЕ: оранжевый фон
-                await ShowQuickSortStep(data: arr, keyIdx: keyIdx, mid, left: left, right: right, compareA:i, compareB: j, null, null, delay: delay,
+                await ShowQuickSortStep(arr, keyIdx, mid, left, right, i, j, null, null, delay,
                     $"Сравниваем: [{i}]='{arr[i][keyIdx]}' и [{j}]='{arr[j][keyIdx]}'");
 
                 if (i >= j) break;
 
-                // ← ОБМЕН: красный фон
-                await ShowQuickSortStep(arr, keyIdx, mid, left, right, null, null, i, j, delay: delay, "Обмен");
+                await ShowQuickSortStep(arr, keyIdx, mid, left, right, null, null, i, j, delay, "Обмен");
                 (arr[i], arr[j]) = (arr[j], arr[i]);
-
-                await ShowQuickSortStep(arr, keyIdx, mid, left, right, null, null, null, null, delay: delay, "После обмена");
+                await ShowQuickSortStep(arr, keyIdx, mid, left, right, null, null, null, null, delay, "После обмена");
             }
 
             return j;
         }
-        
 
         private async Task ShowQuickSortStep(
-    List<string[]> data,
-    int keyIdx,
-    int? pivotIndex = null,
-    int? left = null,
-    int? right = null,
-    int? compareA = null,
-    int? compareB = null,
-    int? swapA = null,
-    int? swapB = null,
-    int delay = 200,
-    string message = "")
-{
-    await Dispatcher.UIThread.InvokeAsync(() =>
-    {
-        _quickSortSteps.Clear();
-        _quickSortSteps.Add(new MergeStep
+            List<string[]> data, int keyIdx,
+            int? pivotIndex, int? left, int? right,
+            int? compareA, int? compareB, int? swapA, int? swapB,
+            int delay, string message)
         {
-            Text = $"QuickSort: {message}",
-            BgColor = "#ffebee",
-            IsTitle = true
-        });
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                ReturnAllSteps(_quickSortSteps);
 
-        for (int idx = 0; idx < data.Count; idx++)
-        {
-            var step = new MergeStep
-            {
-                Text = $"[{idx}] {string.Join(" | ", data[idx])}",
-                ShowArrow = idx == pivotIndex,
-                BgColor = "#ffffff",
-                BorderColor = "Transparent",
-                BorderThickness = 0
-            };
+                var title = RentStep();
+                title.Text = $"QuickSort: {message}";
+                title.BgColor = "#ffebee";
+                title.IsTitle = true;
+                _quickSortSteps.Add(title);
 
-            bool inCurrentSubarray = idx >= left && idx <= right;
+                for (int idx = 0; idx < data.Count; idx++)
+                {
+                    var step = RentStep();
+                    step.Text = $"[{idx}] {string.Join(" | ", data[idx])}";
+                    step.ShowArrow = idx == pivotIndex;
+                    step.BgColor = "#ffffff";
+                    step.BorderColor = "Transparent";
+                    step.BorderThickness = 0;
 
-            // === 1. BORDER: всегда, если в текущем подмассиве ===
-            if (inCurrentSubarray)
-            {
-                step.BorderColor = "#000000";      // Фиолетовый
-                step.BorderThickness = 2;
-            }
+                    bool inRange = left.HasValue && right.HasValue && idx >= left && idx <= right;
+                    if (inRange)
+                    {
+                        step.BorderColor = "BlueViolet";
+                        step.BorderThickness = 2;
+                    }
 
-            // === 2. BACKGROUND: только для активных ролей ===
-            if (idx == compareA || idx == compareB)
-            {
-                step.BgColor = "#ff9800";          // Оранжевый — сравнение
-            }
-            else if (idx == swapA || idx == swapB)
-            {
-                step.BgColor = "#f44336";          // Красный — обмен
-            }
-            else if (idx == pivotIndex)
-            {
-                step.BgColor = "#ffffff";          // Pivot — белый фон
-            }
-            else if (!inCurrentSubarray)
-            {
-                step.BgColor = "#f5f5f5";          // За пределами — серый
-            }
-            // иначе — белый (по умолчанию)
+                    if (idx == compareA || idx == compareB) step.BgColor = "#ff9800";
+                    else if (idx == swapA || idx == swapB) step.BgColor = "#f44336";
+                    else if (idx == pivotIndex) step.BgColor = "#ffffff";
+                    else if (!inRange) step.BgColor = "#f5f5f5";
 
-            _quickSortSteps.Add(step);
+                    _quickSortSteps.Add(step);
+                }
+            }, DispatcherPriority.Normal);
+
+            await Task.Delay(delay);
         }
-    }, DispatcherPriority.Render);
-
-    await Task.Delay(delay);
-}
 
         #endregion
 
@@ -321,18 +353,19 @@ namespace SortingDemo.Tasks
 
         #endregion
 
-        #region === Многопутевое слияние с min-heap ===
+        #region === Многопутевое слияние ===
 
         private class HeapNode : IComparable<HeapNode>
         {
-            public string[] Row { get; set; }
+            public string[] Row { get; set; } = Array.Empty<string>();
             public int FileIndex { get; set; }
-            public string Key { get; set; }
+            public string Key { get; set; } = "";
             public bool IsNumeric { get; set; }
             public double NumericValue { get; set; }
 
-            public int CompareTo(HeapNode other)
+            public int CompareTo(HeapNode? other)
             {
+                if (other == null) return 1;
                 if (IsNumeric && other.IsNumeric)
                     return NumericValue.CompareTo(other.NumericValue);
                 return string.Compare(Key, other.Key, StringComparison.OrdinalIgnoreCase);
@@ -341,55 +374,66 @@ namespace SortingDemo.Tasks
 
         private async Task<string> MultiwayMerge(List<string> files, int keyIdx, int delay)
         {
-            var readers = files.Select(f => new StreamReader(f, Encoding.UTF8)).ToList();
-            var heap = new PriorityQueue<HeapNode, HeapNode>();
-            var output = Path.Combine(_tempDir, "result.tmp");
+            var output = Path.Combine(_tempDir, "multiway_result.tmp");
+            _tempFiles.Add(output);
             if (File.Exists(output)) File.Delete(output);
+
             await using var writer = new StreamWriter(output, false, Encoding.UTF8);
+            var readers = new List<StreamReader>();
+            var heap = new PriorityQueue<HeapNode, HeapNode>();
 
-            for (int i = 0; i < readers.Count; i++)
+            try
             {
-                var line = readers[i].ReadLine();
-                if (line != null)
+                for (int i = 0; i < files.Count; i++)
                 {
-                    var row = line.Split(';').Select(v => v.Trim()).ToArray();
-                    var node = CreateHeapNode(row, keyIdx, i);
-                    if (node != null) heap.Enqueue(node, node);
+                    var reader = new StreamReader(files[i], Encoding.UTF8);
+                    readers.Add(reader);
+                    var line = reader.ReadLine();
+                    if (line != null)
+                    {
+                        var row = line.Split(';').Select(v => v.Trim()).ToArray();
+                        var node = CreateHeapNode(row, keyIdx, i);
+                        if (node != null) heap.Enqueue(node, node);
+                    }
                 }
+
+                int total = _data.Count, done = 0;
+                await ShowHeapVisualization(heap, null, delay);
+                await ShowMultiwayMergeVisualization(heap, null, total, done, delay);
+
+                while (heap.Count > 0 && !_stopRequested)
+                {
+                    var min = heap.Dequeue();
+                    await writer.WriteLineAsync(string.Join(";", min.Row));
+
+                    if (_resultBuffer.Count >= 10) _resultBuffer.RemoveAt(0);
+                    _resultBuffer.Add(string.Join(" | ", min.Row));
+                    done++;
+
+                    await ShowHeapVisualization(heap, min, delay);
+                    await ShowMultiwayMergeVisualization(heap, min, total, done, delay);
+
+                    var nextLine = readers[min.FileIndex].ReadLine();
+                    if (nextLine != null)
+                    {
+                        var row = nextLine.Split(';').Select(v => v.Trim()).ToArray();
+                        var node = CreateHeapNode(row, keyIdx, min.FileIndex);
+                        if (node != null) heap.Enqueue(node, node);
+                    }
+                }
+
+                Log($"Многопутевое слияние: {done} строк");
+            }
+            finally
+            {
+                foreach (var r in readers)
+                    try { r.Close(); r.Dispose(); } catch { }
             }
 
-            int total = _data.Count;
-            int done = 0;
-
-            await ShowHeapVisualization(heap, null, delay);
-            await ShowMultiwayMergeVisualization(heap, null, total, done, delay);
-
-            while (heap.Count > 0 && !_stopRequested)
-            {
-                var min = heap.Dequeue();
-                await writer.WriteLineAsync(string.Join(";", min.Row));
-                _resultBuffer.Add(string.Join(" | ", min.Row));
-                if (_resultBuffer.Count > 10) _resultBuffer.RemoveAt(0);
-                done++;
-
-                await ShowHeapVisualization(heap, min, delay);
-                await ShowMultiwayMergeVisualization(heap, min, total, done, delay);
-
-                var nextLine = readers[min.FileIndex].ReadLine();
-                if (nextLine != null)
-                {
-                    var row = nextLine.Split(';').Select(v => v.Trim()).ToArray();
-                    var node = CreateHeapNode(row, keyIdx, min.FileIndex);
-                    if (node != null) heap.Enqueue(node, node);
-                }
-            }
-
-            foreach (var r in readers) r.Close();
-            Log($"Многопутевое слияние: {done} строк");
             return output;
         }
 
-        private HeapNode CreateHeapNode(string[] row, int keyIdx, int fileIdx)
+        private HeapNode? CreateHeapNode(string[] row, int keyIdx, int fileIdx)
         {
             if (keyIdx >= row.Length) return null;
             var key = row[keyIdx];
@@ -403,62 +447,57 @@ namespace SortingDemo.Tasks
             return node;
         }
 
-        private async Task ShowHeapVisualization(PriorityQueue<HeapNode, HeapNode> heap, HeapNode selected, int delay)
+        private async Task ShowHeapVisualization(PriorityQueue<HeapNode, HeapNode> heap, HeapNode? selected, int delay)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                _quickSortSteps.Clear();
-                _quickSortSteps.Add(new MergeStep
-                {
-                    Text = "min-heap: текущие минимальные элементы",
-                    BgColor = "#fff3e0",
-                    IsTitle = true
-                });
+                ReturnAllSteps(_quickSortSteps);
+
+                var title = RentStep();
+                title.Text = "min-heap: текущие минимальные элементы";
+                title.BgColor = "#fff3e0";
+                title.IsTitle = true;
+                _quickSortSteps.Add(title);
 
                 var items = heap.UnorderedItems.Select(x => x.Element).ToList();
-                for (int i = 0; i < items.Count; i++)
+                foreach (var node in items)
                 {
-                    var node = items[i];
-                    bool isSelected = selected != null && node.FileIndex == selected.FileIndex;
-                    _quickSortSteps.Add(new MergeStep
-                    {
-                        Text = $"Ф{node.FileIndex + 1}: {node.Key} → {string.Join(" | ", node.Row)}",
-                        BgColor = isSelected ? "#ff8a65" : "#ffe0b2",
-                        ShowArrow = isSelected
-                    });
+                    var step = RentStep();
+                    step.Text = $"Ф{node.FileIndex + 1}: {node.Key} → {string.Join(" | ", node.Row)}";
+                    step.BgColor = selected?.FileIndex == node.FileIndex ? "#ff8a65" : "#ffe0b2";
+                    step.ShowArrow = selected?.FileIndex == node.FileIndex;
+                    step.BorderThickness = selected?.FileIndex == node.FileIndex ? 2 : 0;
+                    step.BorderColor = "BlueViolet";
+                    _quickSortSteps.Add(step);
                 }
-            }, DispatcherPriority.Render);
+            }, DispatcherPriority.Normal);
 
             await Task.Delay(delay);
         }
 
-        private async Task ShowMultiwayMergeVisualization(PriorityQueue<HeapNode, HeapNode> heap, HeapNode selected, int total, int done, int delay)
+        private async Task ShowMultiwayMergeVisualization(PriorityQueue<HeapNode, HeapNode> heap, HeapNode? selected, int total, int done, int delay)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                _mergeLeft.Clear();
-                _mergeRight.Clear();
-                _mergeResult.Clear();
+                ReturnAllSteps(_mergeLeft);
+                ReturnAllSteps(_mergeRight);
+                ReturnAllSteps(_mergeResult);
 
                 var progress = total > 0 ? (done * 100 / total) : 0;
-                _mergeLeft.Add(new MergeStep
-                {
-                    Text = $"Многопутевое слияние: {done}/{total} ({progress}%)",
-                    BgColor = "#e3f2fd",
-                    IsTitle = true
-                });
+                var title = RentStep();
+                title.Text = $"Многопутевое слияние: {done}/{total} ({progress}%)";
+                title.BgColor = "#e3f2fd";
+                title.IsTitle = true;
+                _mergeLeft.Add(title);
 
                 var items = heap.UnorderedItems.Select(x => x.Element).ToList();
                 int leftCount = 0, rightCount = 0;
                 foreach (var node in items)
                 {
-                    bool isSelected = selected != null && node.FileIndex == selected.FileIndex;
-                    var step = new MergeStep
-                    {
-                        Text = string.Join(" | ", node.Row),
-                        BgColor = isSelected ? "#42a5f5" : "#bbdefb",
-                        ShowArrow = isSelected
-                    };
+                    var step = RentStep();
+                    step.Text = string.Join(" | ", node.Row);
+                    step.BgColor = selected?.FileIndex == node.FileIndex ? "#42a5f5" : "#bbdefb";
+                    step.ShowArrow = selected?.FileIndex == node.FileIndex;
 
                     if (leftCount <= rightCount) { _mergeLeft.Add(step); leftCount++; }
                     else { _mergeRight.Add(step); rightCount++; }
@@ -466,9 +505,12 @@ namespace SortingDemo.Tasks
 
                 foreach (var line in _resultBuffer)
                 {
-                    _mergeResult.Add(new MergeStep { Text = line, BgColor = "#e0e0e0" });
+                    var step = RentStep();
+                    step.Text = line;
+                    step.BgColor = "#e0e0e0";
+                    _mergeResult.Add(step);
                 }
-            }, DispatcherPriority.Render);
+            }, DispatcherPriority.Normal);
 
             await Task.Delay(delay);
         }
@@ -481,85 +523,68 @@ namespace SortingDemo.Tasks
         {
             var left = File.ReadAllLines(f1, Encoding.UTF8).Select(l => l.Split(';').Select(v => v.Trim()).ToArray()).ToList();
             var right = File.ReadAllLines(f2, Encoding.UTF8).Select(l => l.Split(';').Select(v => v.Trim()).ToArray()).ToList();
-            var result = new List<string[]>();
             var output = Path.Combine(_tempDir, "merge.tmp");
-            var writer = new StreamWriter(output, false, Encoding.UTF8);
+            _tempFiles.Add(output);
+            if (File.Exists(output)) File.Delete(output);
 
+            await using var writer = new StreamWriter(output, false, Encoding.UTF8);
             int i = 0, j = 0, total = left.Count + right.Count, done = 0;
 
             while (i < left.Count && j < right.Count && !_stopRequested)
             {
-                await ShowMergeVisualization(left, right, result, i, j, total, done, delay);
+                await ShowMergeVisualization(left, right, i, j, total, done, delay);
 
                 if (Compare(left[i][keyIdx], right[j][keyIdx]) <= 0)
                 {
-                    result.Add(left[i]);
                     await writer.WriteLineAsync(string.Join(";", left[i]));
                     i++; done++;
                 }
                 else
                 {
-                    result.Add(right[j]);
                     await writer.WriteLineAsync(string.Join(";", right[j]));
                     j++; done++;
                 }
             }
 
-            while (i < left.Count) { result.Add(left[i]); await writer.WriteLineAsync(string.Join(";", left[i])); i++; done++; }
-            while (j < right.Count) { result.Add(right[j]); await writer.WriteLineAsync(string.Join(";", right[j])); j++; done++; }
+            while (i < left.Count && !_stopRequested) { await writer.WriteLineAsync(string.Join(";", left[i])); i++; done++; }
+            while (j < right.Count && !_stopRequested) { await writer.WriteLineAsync(string.Join(";", right[j])); j++; done++; }
 
-            await ShowMergeVisualization(left, right, result, i, j, total, done, delay);
-            writer.Close();
+            await ShowMergeVisualization(left, right, i, j, total, done, delay);
             return output;
         }
 
-        private async Task ShowMergeVisualization(
-            List<string[]> left, List<string[]> right, List<string[]> result,
-            int i, int j, int total, int done, int delay)
+        private async Task ShowMergeVisualization(List<string[]> left, List<string[]> right, int i, int j, int total, int done, int delay)
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                _mergeLeft.Clear();
-                _mergeRight.Clear();
-                _mergeResult.Clear();
+                ReturnAllSteps(_mergeLeft);
+                ReturnAllSteps(_mergeRight);
 
                 var progress = total > 0 ? (done * 100 / total) : 0;
-                _mergeLeft.Add(new MergeStep
-                {
-                    Text = $"Слияние: {done}/{total} ({progress}%)",
-                    BgColor = "#e3f2fd",
-                    IsTitle = true
-                });
+                var title = RentStep();
+                title.Text = $"Слияние: {done}/{total} ({progress}%)";
+                title.BgColor = "#e3f2fd";
+                title.IsTitle = true;
+                _mergeLeft.Add(title);
 
                 for (int idx = 0; idx < left.Count; idx++)
                 {
-                    _mergeLeft.Add(new MergeStep
-                    {
-                        Text = string.Join(" | ", left[idx]),
-                        BgColor = idx == i ? "#42a5f5" : "#bbdefb",
-                        ShowArrow = idx == i
-                    });
+                    var step = RentStep();
+                    step.Text = string.Join(" | ", left[idx]);
+                    step.BgColor = idx == i ? "#42a5f5" : "#bbdefb";
+                    step.ShowArrow = idx == i;
+                    _mergeLeft.Add(step);
                 }
 
                 for (int idx = 0; idx < right.Count; idx++)
                 {
-                    _mergeRight.Add(new MergeStep
-                    {
-                        Text = string.Join(" | ", right[idx]),
-                        BgColor = idx == j ? "#66bb6a" : "#c8e6c9",
-                        ShowArrow = idx == j
-                    });
+                    var step = RentStep();
+                    step.Text = string.Join(" | ", right[idx]);
+                    step.BgColor = idx == j ? "#66bb6a" : "#c8e6c9";
+                    step.ShowArrow = idx == j;
+                    _mergeRight.Add(step);
                 }
-
-                foreach (var row in result.TakeLast(10))
-                {
-                    _mergeResult.Add(new MergeStep
-                    {
-                        Text = string.Join(" | ", row),
-                        BgColor = "#e0e0e0"
-                    });
-                }
-            }, DispatcherPriority.Render);
+            }, DispatcherPriority.Normal);
 
             await Task.Delay(delay);
         }
@@ -568,7 +593,7 @@ namespace SortingDemo.Tasks
 
         #region === Вспомогательное ===
 
-        private List<List<string[]>> SplitIntoChunks(int size) => 
+        private List<List<string[]>> SplitIntoChunks(int size) =>
             Enumerable.Range(0, (int)Math.Ceiling(_data.Count / (double)size))
                       .Select(k => _data.Skip(k * size).Take(size).ToList())
                       .ToList();
@@ -576,11 +601,12 @@ namespace SortingDemo.Tasks
         private string SaveChunk(List<string[]> chunk, string name)
         {
             var path = Path.Combine(_tempDir, $"{name}.tmp");
+            _tempFiles.Add(path);
             File.WriteAllLines(path, chunk.Select(r => string.Join(";", r)), Encoding.UTF8);
             return path;
         }
 
-        private List<string[]> LoadFromFile(string path) => 
+        private List<string[]> LoadFromFile(string path) =>
             File.ReadAllLines(path, Encoding.UTF8)
                 .Select(l => l.Split(';').Select(v => v.Trim()).ToArray())
                 .ToList();
@@ -608,16 +634,22 @@ namespace SortingDemo.Tasks
         {
             await Dispatcher.UIThread.InvokeAsync(() =>
             {
-                _quickSortSteps.Clear();
-                _quickSortSteps.Add(new MergeStep 
-                { 
-                    Text = $"Фаза: сортировка чанков — {title}", 
-                    BgColor = "#e8f5e8", 
-                    IsTitle = true 
-                });
+                ReturnAllSteps(_quickSortSteps);
+
+                var t = RentStep();
+                t.Text = $"Фаза: сортировка чанков — {title}";
+                t.BgColor = "#e8f5e8";
+                t.IsTitle = true;
+                _quickSortSteps.Add(t);
+
                 foreach (var row in data)
-                    _quickSortSteps.Add(new MergeStep { Text = string.Join(" | ", row), BgColor = "#f9f9f9" });
-            }, DispatcherPriority.Render);
+                {
+                    var step = RentStep();
+                    step.Text = string.Join(" | ", row);
+                    step.BgColor = "#f9f9f9";
+                    _quickSortSteps.Add(step);
+                }
+            }, DispatcherPriority.Normal);
 
             await Task.Delay(delay);
         }
@@ -629,9 +661,7 @@ namespace SortingDemo.Tasks
 
             if (double.TryParse(a, NumberStyles.Any, CultureInfo.InvariantCulture, out double da) &&
                 double.TryParse(b, NumberStyles.Any, CultureInfo.InvariantCulture, out double db))
-            {
                 return da.CompareTo(db);
-            }
 
             return string.Compare(a, b, StringComparison.OrdinalIgnoreCase);
         }
@@ -657,21 +687,14 @@ namespace SortingDemo.Tasks
             StatusText.Text = msg;
         }
 
-        private void SaveFileBtn_Click(object? sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "sorted_result.csv");
-                File.WriteAllLines(path, _tableRows.Skip(1).Select(r => r.Text.Replace(" | ", ";")), Encoding.UTF8);
-                Log($"Сохранено: {path}");
-            }
-            catch (Exception ex) { Log($"Ошибка: {ex.Message}"); }
-        }
-
         protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
         {
-            try { if (Directory.Exists(_tempDir)) Directory.Delete(_tempDir, true); } catch { }
             base.OnDetachedFromVisualTree(e);
+            LoadFileBtn.Click -= LoadFileBtn_Click;
+            SaveFileBtn.Click -= SaveFileBtn_Click;
+            StartBtn.Click -= StartBtn_Click;
+            CleanupTempFiles();
+            try { if (Directory.Exists(_tempDir)) Directory.Delete(_tempDir, true); } catch { }
         }
 
         #endregion
@@ -681,66 +704,46 @@ namespace SortingDemo.Tasks
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
-    #region === Модели и конвертеры ===
+    #region === Модели ===
 
-    public class DisplayRow { public string Text { get; set; } = ""; public string BgColor { get; set; } = "#ffffff"; }
-
-    public class MergeStep : INotifyPropertyChanged
+    public class DisplayRow
     {
-        public string _text = "";
-        public string _bgColor = "#ffffff";
-        public string _borderColor = "Transparent";
-        public double _borderThickness = 0;
-        public bool _showArrow = false;
-        public bool _isTitle = false;
-
-        public string Text { get => _text; set { _text = value; OnPropertyChanged(); } }
-        public string BgColor { get => _bgColor; set { _bgColor = value; OnPropertyChanged(); } }
-        public string BorderColor { get => _borderColor; set { _borderColor = value; OnPropertyChanged(); } }
-        public double BorderThickness { get => _borderThickness; set { _borderThickness = value; OnPropertyChanged(); } }
-        public bool ShowArrow { get => _showArrow; set { _showArrow = value; OnPropertyChanged(); } }
-        public bool IsTitle { get => _isTitle; set { _isTitle = value; OnPropertyChanged(); } }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        public string Text { get; set; } = "";
+        public string BgColor { get; set; } = "#ffffff";
     }
+
+    public class MergeStep
+    {
+        public string Text { get; set; } = "";
+        public string BgColor { get; set; } = "#ffffff";
+        public string BorderColor { get; set; } = "Transparent";
+        public double BorderThickness { get; set; } = 0;
+        public bool ShowArrow { get; set; } = false;
+        public bool IsTitle { get; set; } = false;
+    }
+
+    #endregion
+
+    #region === Конвертеры ===
 
     public class BoolToOpacityConverter : IValueConverter
     {
         public object Convert(object value, Type t, object p, CultureInfo c) => value is true ? 1.0 : 0.0;
         public object ConvertBack(object value, Type t, object p, CultureInfo c) => throw new NotImplementedException();
     }
-    
-    public class StringToBrushConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return Brushes.Black;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => throw new NotImplementedException();
-    }
-    
-    public class BoolToBorderThicknessConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            if (value is double thickness && thickness != 0) return new Thickness(2);
-            return new Thickness(0);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
 
     public class BoolToFontWeightConverter : IValueConverter
     {
         public object Convert(object value, Type t, object p, CultureInfo c) => value is true ? FontWeight.Bold : FontWeight.Normal;
         public object ConvertBack(object value, Type t, object p, CultureInfo c) => throw new NotImplementedException();
+    }
+
+    public class BoolToBorderThicknessConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => value is double thickness && thickness > 0 ? 2 : 0;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
     }
 
     #endregion
