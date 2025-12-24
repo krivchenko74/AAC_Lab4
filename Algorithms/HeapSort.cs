@@ -33,7 +33,19 @@ public class HeapSort : IAlgorithm
         for (int i = n / 2 - 1; i >= 0; i--)
         {
             Log($"\nHeapify корня на индексе {i} (дети: {2*i+1}, {2*i+2})");
+
+            // Подсвечиваем всю кучу перед heapify
+            if (onHighlight != null)
+            {
+                Log($"Подсветка кучи: [0..{n-1}]");
+                await onHighlight(0, n - 1);
+            }
+
             await Heapify(array, n, i, onCompare, onSwap, onRefresh, onHighlight, Log, depth: 1);
+
+            // Снимаем подсветку после завершения heapify
+            if (onHighlight != null)
+                await onHighlight(-1, -1);
         }
         Log($"Куча построена: [{string.Join(", ", array)}]");
 
@@ -43,9 +55,10 @@ public class HeapSort : IAlgorithm
         {
             Log($"\nШаг {n - i}: извлекаем максимум (корень) → позиция {i}");
 
+            // Подсвечиваем текущую кучу: [0..i]
             if (onHighlight != null)
             {
-                Log($"Подсветка: корень [0] ↔ последний неотсортированный [{i}]");
+                Log($"Подсветка текущей кучи: [0..{i}]");
                 await onHighlight(0, i);
             }
 
@@ -66,6 +79,7 @@ public class HeapSort : IAlgorithm
                 await Heapify(array, i, 0, onCompare, onSwap, onRefresh, onHighlight, Log, depth: 1);
             }
 
+            // Снимаем подсветку кучи после завершения шага
             if (onHighlight != null)
                 await onHighlight(-1, -1);
         }
@@ -89,6 +103,13 @@ public class HeapSort : IAlgorithm
         int largest = rootIndex;
         int left = 2 * rootIndex + 1;
         int right = 2 * rootIndex + 2;
+
+        // === ПОДСВЕТКА КУЧИ ПРИ ВХОДЕ (только на верхнем уровне) ===
+        if (onHighlight != null && depth == 1)
+        {
+            Log($"{indent}Подсветка кучи: [0..{heapSize-1}]");
+            await onHighlight(0, heapSize - 1);
+        }
 
         Log($"{indent}Heapify(root={rootIndex}, heapSize={heapSize})");
         Log($"{indent}  Текущий узел: array[{rootIndex}] = {array[rootIndex]}");
@@ -149,6 +170,12 @@ public class HeapSort : IAlgorithm
         else
         {
             Log($"{indent}  Куча в порядке — обмен не требуется");
+        }
+
+        // === СНЯТИЕ ПОДСВЕТКИ КУЧИ ПРИ ВЫХОДЕ (только на верхнем уровне) ===
+        if (onHighlight != null && depth == 1)
+        {
+            await onHighlight(-1, -1);
         }
     }
 

@@ -39,11 +39,11 @@ public class BubbleSort : IAlgorithm
             // Подсвечиваем неотсортированную часть
             if (onHighlight != null)
             {
-                Log($"│ Подсветка: сравнения в [0..{n - 2 - i}]");
-                await onHighlight(0, n - 2 - i);
+                Log($"│ Подсветка: сравнения в [0..{n - 1 - i}]");
+                await onHighlight(0, n - 1 - i);
             }
 
-            Log($"│ Сравниваем соседние пары: j от 0 до {n - 2 - i}");
+            Log($"│ Сравниваем соседние пары: j от 0 до {n - 1 - i}");
 
             for (int j = 0; j < n - 1 - i; j++)
             {

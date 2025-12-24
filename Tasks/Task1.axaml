@@ -23,7 +23,7 @@
 
             <!-- Выбор алгоритма -->
             <ComboBox x:Name="AlgorithmBox" SelectedIndex="1"
-                      Width="180" Height="32"
+                      Width="230" Height="32"
                       Background="#F5F5F5" Foreground="#333"
                       BorderBrush="#CCC" BorderThickness="1"
                       CornerRadius="6"
@@ -37,23 +37,23 @@
             <!-- Задержка -->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
                 <TextBlock Text="Задержка:" VerticalAlignment="Center"/>
-                <NumericUpDown x:Name="DelayBox" Width="100" Height="32"
+                <NumericUpDown x:Name="DelayBox" Width="120" Height="32"
                                Value="1500" Minimum="10" Maximum="3000"
                                Background="#F5F5F5" Foreground="#333"
                                BorderBrush="#CCC" BorderThickness="1"
                                CornerRadius="6"
-                               HorizontalContentAlignment="Center"/>
+                               VerticalContentAlignment="Center"/>
             </StackPanel>
 
             <!-- Размер массива -->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="4">
                 <TextBlock Text="Размер массива:" VerticalAlignment="Center"/>
-                <NumericUpDown x:Name="SizeBox" Width="100" Height="32"
+                <NumericUpDown x:Name="SizeBox" Width="120" Height="32"
                                Value="10" Minimum="2" Maximum="100"
                                Background="#F5F5F5" Foreground="#333"
                                BorderBrush="#CCC" BorderThickness="1"
                                CornerRadius="6"
-                               HorizontalContentAlignment="Center"/>
+                               VerticalContentAlignment="Center"/>
             </StackPanel>
 
 </StackPanel>

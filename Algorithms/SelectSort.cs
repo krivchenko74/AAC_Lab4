@@ -46,17 +46,17 @@ public class SelectSort : IAlgorithm
 
             for (int j = i + 1; j < n; j++)
             {
-                Log($"│   → j={j}: сравниваем array[{i}]={array[i]} и array[{j}]={array[j]}");
-                await onCompare(i, j);
+                Log($"│   → j={j}: сравниваем array[{minIndex}]={array[minIndex]} и array[{j}]={array[j]}");
+                await onCompare(minIndex, j);
 
-                if (array[i] > array[j])
+                if (array[minIndex] > array[j])
                 {
-                    Log($"│   Found smaller: array[{j}] < array[{i}] → minIndex = {j}");
+                    Log($"│   Found smaller: array[{j}] ({array[j]}) < array[{minIndex}] ({array[minIndex]}) → minIndex = {j}");
                     minIndex = j;
                 }
                 else
                 {
-                    Log($"│   No change: array[{j}] >= array[{i}] → minIndex остаётся {minIndex}");
+                    Log($"│   No change: array[{j}] ({array[j]}) >= array[{minIndex}] ({array[minIndex]}) → minIndex остаётся {minIndex}");
                 }
             }
 

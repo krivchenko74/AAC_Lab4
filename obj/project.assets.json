@@ -441,10 +441,10 @@
           "lib/net5.0/MicroCom.Runtime.dll": {}
         }
       },
-      "OxyPlot.Avalonia/2.1.0": {
+      "Oxyplot.Avalonia/2.1.0-Avalonia11": {
         "type": "package",
         "dependencies": {
-          "Avalonia": "0.10.11",
+          "Avalonia": "11.0.0",
           "OxyPlot.Core": "2.1.0"
         },
         "compile": {
@@ -454,15 +454,15 @@
           "lib/netstandard2.0/OxyPlot.Avalonia.dll": {}
         }
       },
-      "OxyPlot.Core/2.2.0": {
+      "OxyPlot.Core/2.1.0": {
         "type": "package",
         "compile": {
-          "lib/net6.0/OxyPlot.dll": {
+          "lib/netstandard2.0/OxyPlot.dll": {
             "related": ".xml"
           }
         },
         "runtime": {
-          "lib/net6.0/OxyPlot.dll": {
+          "lib/netstandard2.0/OxyPlot.dll": {
             "related": ".xml"
           }
         }
@@ -1301,36 +1301,35 @@
         "microcom.runtime.nuspec"
       ]
     },
-    "OxyPlot.Avalonia/2.1.0": {
-      "sha512": "eYIRqGFeIKg2Iv4kdcfxbQvfqmApqBe556WZjlQ0MU3gH+KRVetigYSFFi74yyUEFLI9kbNwAvS41FeTHgZBrQ==",
+    "Oxyplot.Avalonia/2.1.0-Avalonia11": {
+      "sha512": "+Duyr4oXKWOBW0hYHb7vK502XPyNeLsc7bLjB8VW4UHXkT7mlGJFuc1GffspsNgdg5tgR/dcOcydoc6rK5zhzQ==",
       "type": "package",
-      "path": "oxyplot.avalonia/2.1.0",
+      "path": "oxyplot.avalonia/2.1.0-avalonia11",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "lib/netstandard2.0/OxyPlot.Avalonia.dll",
-        "oxyplot.avalonia.2.1.0.nupkg.sha512",
+        "oxyplot.avalonia.2.1.0-avalonia11.nupkg.sha512",
         "oxyplot.avalonia.nuspec"
       ]
     },
-    "OxyPlot.Core/2.2.0": {
-      "sha512": "QhXNdXR5FPpro/VoLx3BOp6AhQo7YrbfmWEZ9cgY+pnYM7RYORZjnu+aDMA8ka9A1r8hLkX//NbCPZNUv+l8qA==",
+    "OxyPlot.Core/2.1.0": {
+      "sha512": "jG+Ct3T59fXDG2LE1hyUaXqH7i+h5Nfway1iB0+0NaY2mvDsz8Row/BKjiBWCt5NHp3+q9JSMiD2wpin2hh3kw==",
       "type": "package",
-      "path": "oxyplot.core/2.2.0",
+      "path": "oxyplot.core/2.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "OxyPlot_128.png",
-        "README.md",
-        "lib/net462/OxyPlot.dll",
-        "lib/net462/OxyPlot.xml",
-        "lib/net6.0/OxyPlot.dll",
-        "lib/net6.0/OxyPlot.xml",
-        "lib/net8.0/OxyPlot.dll",
-        "lib/net8.0/OxyPlot.xml",
+        "lib/net40/OxyPlot.dll",
+        "lib/net40/OxyPlot.xml",
+        "lib/net45/OxyPlot.dll",
+        "lib/net45/OxyPlot.xml",
+        "lib/netstandard1.0/OxyPlot.dll",
+        "lib/netstandard1.0/OxyPlot.xml",
         "lib/netstandard2.0/OxyPlot.dll",
         "lib/netstandard2.0/OxyPlot.xml",
-        "oxyplot.core.2.2.0.nupkg.sha512",
+        "oxyplot.core.2.1.0.nupkg.sha512",
         "oxyplot.core.nuspec"
       ]
     },
@@ -1879,8 +1878,8 @@
       "Avalonia.Desktop >= 11.3.8",
       "Avalonia.ReactiveUI >= 11.1.8",
       "Avalonia.Themes.Fluent >= 11.1.8",
-      "OxyPlot.Avalonia >= 2.1.0",
-      "OxyPlot.Core >= 2.2.0"
+      "OxyPlot.Avalonia >= 2.1.0-Avalonia11",
+      "OxyPlot.Core >= 2.1.0"
     ]
   },
   "packageFolders": {
@@ -1947,11 +1946,11 @@
           },
           "OxyPlot.Avalonia": {
             "target": "Package",
-            "version": "[2.1.0, )"
+            "version": "[2.1.0-Avalonia11, )"
           },
           "OxyPlot.Core": {
             "target": "Package",
-            "version": "[2.2.0, )"
+            "version": "[2.1.0, )"
           }
         },
         "imports": [

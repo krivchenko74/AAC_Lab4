@@ -1,3 +1,4 @@
+// <DOCUMENT filename="Task2.axaml.cs">
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -130,151 +131,142 @@ namespace SortingDemo.Tasks
         #region === QuickSort ===
 
         private async Task QuickSortWithAnimation(List<string[]> chunk, int keyIdx, int delay)
-{
-    Log($"[QuickSort] Старт Lomuto: {chunk.Count} элементов");
-    await QuickSortLomuto(chunk, 0, chunk.Count - 1, keyIdx, delay);
-    Log($"[QuickSort] Завершено");
-}
-
-private async Task QuickSortLomuto(
-    List<string[]> arr,
-    int left,
-    int right,
-    int keyIdx,
-    int delay)
-{
-    if (left >= right || _stopRequested) return;
-
-    Log($"[Lomuto] Рекурсия: [{left}..{right}] (размер: {right - left + 1})");
-
-    // Подсвечиваем текущий подмассив
-    await ShowQuickSortStep(arr, keyIdx, null, left, right, null, null, null, null, delay,
-        $"Разбиение: [{left}..{right}]");
-
-    int partitionIndex = await PartitionLomuto(arr, left, right, keyIdx, delay);
-
-    // Рекурсия: левая и правая части
-    await QuickSortLomuto(arr, left, partitionIndex - 1, keyIdx, delay);
-    await QuickSortLomuto(arr, partitionIndex + 1, right, keyIdx, delay);
-}
-
-private async Task<int> PartitionLomuto(
-    List<string[]> arr,
-    int left,
-    int right,
-    int keyIdx,
-    int delay)
-{
-    // === Lomuto: pivot — последний элемент ===
-    var pivotValue = arr[right][keyIdx];
-    int i = left - 1; // индекс для элементов ≤ pivot
-
-    await ShowQuickSortStep(arr, keyIdx, right, left, right, null, null, null, null, delay,
-        $"Pivot: [{right}] = '{pivotValue}' (в конце)");
-
-    for (int j = left; j < right; j++)
-    {
-        // Сравниваем текущий элемент с pivot
-        await ShowQuickSortStep(arr, keyIdx, right, left, right, j, right, null, null, delay,
-            $"Сравниваем: [{j}]='{arr[j][keyIdx]}' и pivot='{pivotValue}'");
-
-        if (Compare(arr[j][keyIdx], pivotValue) <= 0)
         {
-            i++;
-            if (i != j)
-            {
-                // Обмен
-                (arr[i], arr[j]) = (arr[j], arr[i]);
-                await ShowQuickSortStep(arr, keyIdx, right, left, right, null, null, i, j, delay,
-                    "Обмен");
-                await ShowQuickSortStep(arr, keyIdx, right, left, right, null, null, null, null, delay,
-                    "После обмена");
-            }
+            Log($"[QuickSort] Старт Lomuto: {chunk.Count} элементов");
+            await QuickSortLomuto(chunk, 0, chunk.Count - 1, keyIdx, delay);
+            Log($"[QuickSort] Завершено");
         }
-    }
 
-    // Финальный обмен: ставим pivot на место
-    i++;
-    if (i != right)
-    {
-        (arr[i], arr[right]) = (arr[right], arr[i]);
-        await ShowQuickSortStep(arr, keyIdx, right, left, right, null, null, i, right, delay,
-            "Финальный обмен: pivot на место");
-        await ShowQuickSortStep(arr, keyIdx, right, left, right, null, null, null, null, delay,
-            $"Pivot зафиксирован на индексе {i}");
-    }
+        private async Task QuickSortLomuto(
+            List<string[]> arr,
+            int left,
+            int right,
+            int keyIdx,
+            int delay)
+        {
+            if (left >= right || _stopRequested) return;
 
-    return i; // partitionIndex
-}
+            Log($"[Lomuto] Рекурсия: [{left}..{right}] (размер: {right - left + 1})");
+
+            await ShowQuickSortStep(arr, keyIdx, null, left, right, null, null, null, null, delay,
+                $"Разбиение: [{left}..{right}]");
+
+            int partitionIndex = await PartitionLomuto(arr, left, right, keyIdx, delay);
+
+            await QuickSortLomuto(arr, left, partitionIndex - 1, keyIdx, delay);
+            await QuickSortLomuto(arr, partitionIndex + 1, right, keyIdx, delay);
+        }
+
+        private async Task<int> PartitionLomuto(
+            List<string[]> arr,
+            int left,
+            int right,
+            int keyIdx,
+            int delay)
+        {
+            var pivotValue = arr[right][keyIdx];
+            int i = left - 1;
+
+            await ShowQuickSortStep(arr, keyIdx, right, left, right, null, null, null, null, delay,
+                $"Pivot: [{right}] = '{pivotValue}' (в конце)");
+
+            for (int j = left; j < right; j++)
+            {
+                await ShowQuickSortStep(arr, keyIdx, right, left, right, j, right, null, null, delay,
+                    $"Сравниваем: [{j}]='{arr[j][keyIdx]}' и pivot='{pivotValue}'");
+
+                if (Compare(arr[j][keyIdx], pivotValue) <= 0)
+                {
+                    i++;
+                    if (i != j)
+                    {
+                        (arr[i], arr[j]) = (arr[j], arr[i]);
+                        await ShowQuickSortStep(arr, keyIdx, right, left, right, null, null, i, j, delay,
+                            "Обмен");
+                        await ShowQuickSortStep(arr, keyIdx, right, left, right, null, null, null, null, delay,
+                            "После обмена");
+                    }
+                }
+            }
+
+            i++;
+            if (i != right)
+            {
+                (arr[i], arr[right]) = (arr[right], arr[i]);
+                await ShowQuickSortStep(arr, keyIdx, right, left, right, null, null, i, right, delay,
+                    "Финальный обмен: pivot на место");
+                await ShowQuickSortStep(arr, keyIdx, right, left, right, null, null, null, null, delay,
+                    $"Pivot зафиксирован на индексе {i}");
+            }
+
+            return i;
+        }
 
         private async Task ShowQuickSortStep(
-    List<string[]> data,
-    int keyIdx,
-    int? pivotIndex = null,
-    int? left = null,
-    int? right = null,
-    int? compareA = null,
-    int? compareB = null,
-    int? swapA = null,
-    int? swapB = null,
-    int delay = 200,
-    string message = "")
-{
-    await Dispatcher.UIThread.InvokeAsync(() =>
-    {
-        _quickSortSteps.Clear();
-        _quickSortSteps.Add(new MergeStep
+            List<string[]> data,
+            int keyIdx,
+            int? pivotIndex = null,
+            int? left = null,
+            int? right = null,
+            int? compareA = null,
+            int? compareB = null,
+            int? swapA = null,
+            int? swapB = null,
+            int delay = 200,
+            string message = "")
         {
-            Text = $"QuickSort: {message}",
-            BgColor = "#ffebee",
-            IsTitle = true
-        });
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                _quickSortSteps.Clear();
+                _quickSortSteps.Add(new MergeStep
+                {
+                    Text = $"QuickSort: {message}",
+                    BgColor = "#ffebee",
+                    IsTitle = true
+                });
 
-        for (int idx = 0; idx < data.Count; idx++)
-        {
-            var step = new MergeStep
-            {
-                Text = $"[{idx}] {string.Join(" | ", data[idx])}",
-                ShowArrow = idx == pivotIndex,
-                BgColor = "#ffffff",
-                BorderColor = "Transparent",
-                BorderThickness = 0
-            };
+                for (int idx = 0; idx < data.Count; idx++)
+                {
+                    var step = new MergeStep
+                    {
+                        Text = $"[{idx}] {string.Join(" | ", data[idx])}",
+                        ShowArrow = idx == pivotIndex,
+                        BgColor = "#ffffff",
+                        BorderColor = "Transparent",
+                        BorderThickness = 0
+                    };
 
-            bool inCurrentSubarray = idx >= left && idx <= right;
+                    bool inCurrentSubarray = idx >= left && idx <= right;
 
-            // === 1. BORDER: всегда, если в текущем подмассиве ===
-            if (inCurrentSubarray)
-            {
-                step.BorderColor = "#000000";      // Фиолетовый
-                step.BorderThickness = 2;
-            }
+                    if (inCurrentSubarray)
+                    {
+                        step.BorderColor = "#000000";
+                        step.BorderThickness = 2;
+                    }
 
-            // === 2. BACKGROUND: только для активных ролей ===
-            if (idx == compareA || idx == compareB)
-            {
-                step.BgColor = "#ff9800";          // Оранжевый — сравнение
-            }
-            else if (idx == swapA || idx == swapB)
-            {
-                step.BgColor = "#f44336";          // Красный — обмен
-            }
-            else if (idx == pivotIndex)
-            {
-                step.BgColor = "#ffffff";          // Pivot — белый фон
-            }
-            else if (!inCurrentSubarray)
-            {
-                step.BgColor = "#f5f5f5";          // За пределами — серый
-            }
-            // иначе — белый (по умолчанию)
+                    if (idx == compareA || idx == compareB)
+                    {
+                        step.BgColor = "#ff9800";
+                    }
+                    else if (idx == swapA || idx == swapB)
+                    {
+                        step.BgColor = "#f44336";
+                    }
+                    else if (idx == pivotIndex)
+                    {
+                        step.BgColor = "#ffffff";
+                    }
+                    else if (!inCurrentSubarray)
+                    {
+                        step.BgColor = "#f5f5f5";
+                    }
 
-            _quickSortSteps.Add(step);
+                    _quickSortSteps.Add(step);
+                }
+            }, DispatcherPriority.Render);
+
+            await Task.Delay(delay);
         }
-    }, DispatcherPriority.Render);
-
-    await Task.Delay(delay);
-}
 
         #endregion
 
@@ -309,7 +301,6 @@ private async Task<int> PartitionLomuto(
             for (int i = 0; i < series.Count; i++)
             {
                 var s = series[i];
-                await QuickSortWithAnimation(s, keyIdx, delay);
                 var file = SaveChunk(s, $"series_{i}");
                 files.Add(file);
                 await ShowChunkStep($"Серия {i + 1}", s, delay);
@@ -358,57 +349,68 @@ private async Task<int> PartitionLomuto(
                     return NumericValue.CompareTo(other.NumericValue);
                 return string.Compare(Key, other.Key, StringComparison.OrdinalIgnoreCase);
             }
+
+            public override string ToString() => $"F{FileIndex + 1}: {Key}";
         }
 
         private async Task<string> MultiwayMerge(List<string> files, int keyIdx, int delay)
+{
+    var readers = files.Select(f => new StreamReader(f, Encoding.UTF8)).ToList();
+    var heap = new PriorityQueue<HeapNode, HeapNode>();
+    var output = Path.Combine(_tempDir, "result.tmp");
+    if (File.Exists(output)) File.Delete(output);
+    await using var writer = new StreamWriter(output, false, Encoding.UTF8);
+
+    // Инициализация: первая строка из каждого файла
+    for (int i = 0; i < readers.Count; i++)
+    {
+        var line = readers[i].ReadLine();
+        if (line != null)
         {
-            var readers = files.Select(f => new StreamReader(f, Encoding.UTF8)).ToList();
-            var heap = new PriorityQueue<HeapNode, HeapNode>();
-            var output = Path.Combine(_tempDir, "result.tmp");
-            if (File.Exists(output)) File.Delete(output);
-            await using var writer = new StreamWriter(output, false, Encoding.UTF8);
-
-            for (int i = 0; i < readers.Count; i++)
-            {
-                var line = readers[i].ReadLine();
-                if (line != null)
-                {
-                    var row = line.Split(';').Select(v => v.Trim()).ToArray();
-                    var node = CreateHeapNode(row, keyIdx, i);
-                    if (node != null) heap.Enqueue(node, node);
-                }
-            }
-
-            int total = _data.Count;
-            int done = 0;
-
-            await ShowHeapVisualization(heap, null, delay);
-            await ShowMultiwayMergeVisualization(heap, null, total, done, delay);
-
-            while (heap.Count > 0 && !_stopRequested)
-            {
-                var min = heap.Dequeue();
-                await writer.WriteLineAsync(string.Join(";", min.Row));
-                _resultBuffer.Add(string.Join(" | ", min.Row));
-                if (_resultBuffer.Count > 10) _resultBuffer.RemoveAt(0);
-                done++;
-
-                await ShowHeapVisualization(heap, min, delay);
-                await ShowMultiwayMergeVisualization(heap, min, total, done, delay);
-
-                var nextLine = readers[min.FileIndex].ReadLine();
-                if (nextLine != null)
-                {
-                    var row = nextLine.Split(';').Select(v => v.Trim()).ToArray();
-                    var node = CreateHeapNode(row, keyIdx, min.FileIndex);
-                    if (node != null) heap.Enqueue(node, node);
-                }
-            }
-
-            foreach (var r in readers) r.Close();
-            Log($"Многопутевое слияние: {done} строк");
-            return output;
+            var row = line.Split(';').Select(v => v.Trim()).ToArray();
+            var node = CreateHeapNode(row, keyIdx, i);
+            if (node != null) heap.Enqueue(node, node);
         }
+    }
+
+    int total = _data.Count;
+    int done = 0;
+
+    // Первый кадр: показать начальное состояние
+    await ShowMultiwayMergeVisualization(heap, null, total, done, delay);
+
+    while (heap.Count > 0 && !_stopRequested)
+    {
+        var min = heap.Dequeue();  // Извлекаем минимум
+        await writer.WriteLineAsync(string.Join(";", min.Row));
+        _resultBuffer.Add(string.Join(" | ", min.Row));
+        if (_resultBuffer.Count > 10) _resultBuffer.RemoveAt(0);
+        done++;
+
+        // Показываем состояние ПОСЛЕ извлечения, но ДО добавления новой строки
+        await ShowMultiwayMergeVisualization(heap, min, total, done, delay);
+
+        // Читаем следующую строку из ТОГО ЖЕ файла
+        var nextLine = readers[min.FileIndex].ReadLine();
+        if (nextLine != null)
+        {
+            var row = nextLine.Split(';').Select(v => v.Trim()).ToArray();
+            var node = CreateHeapNode(row, keyIdx, min.FileIndex);
+            if (node != null)
+            {
+                heap.Enqueue(node, node);  // Добавляем новую голову
+            }
+        }
+
+        // Показываем состояние ПОСЛЕ добавления (если было)
+        // Это и есть кадр, где куча должна содержать 2 элемента
+        await ShowMultiwayMergeVisualization(heap, null, total, done, delay);
+    }
+
+    foreach (var r in readers) r.Close();
+    Log($"Многопутевое слияние: {done} строк");
+    return output;
+}
 
         private HeapNode CreateHeapNode(string[] row, int keyIdx, int fileIdx)
         {
@@ -424,98 +426,93 @@ private async Task<int> PartitionLomuto(
             return node;
         }
 
-        private async Task ShowHeapVisualization(PriorityQueue<HeapNode, HeapNode> heap, HeapNode selected, int delay)
-        {
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                _quickSortSteps.Clear();
-                _quickSortSteps.Add(new MergeStep
-                {
-                    Text = "min-heap: текущие минимальные элементы",
-                    BgColor = "#fff3e0",
-                    IsTitle = true
-                });
-
-                var items = heap.UnorderedItems.Select(x => x.Element).ToList();
-                for (int i = 0; i < items.Count; i++)
-                {
-                    var node = items[i];
-                    bool isSelected = selected != null && node.FileIndex == selected.FileIndex;
-                    _quickSortSteps.Add(new MergeStep
-                    {
-                        Text = $"Ф{node.FileIndex + 1}: {node.Key} → {string.Join(" | ", node.Row)}",
-                        BgColor = isSelected ? "#ff8a65" : "#ffe0b2",
-                        ShowArrow = isSelected
-                    });
-                }
-            }, DispatcherPriority.Render);
-
-            await Task.Delay(delay);
-        }
-
         private async Task ShowMultiwayMergeVisualization(
     PriorityQueue<HeapNode, HeapNode> heap,
-    HeapNode selected,
+    HeapNode? selected,
     int total, int done,
     int delay)
 {
     await Dispatcher.UIThread.InvokeAsync(() =>
     {
+        _quickSortSteps.Clear();
         _mergeLeft.Clear();
         _mergeRight.Clear();
         _mergeResult.Clear();
 
-        var progress = total > 0 ? (done * 100 / total) : 0;
-        _mergeLeft.Add(new MergeStep
+        int progress = total > 0 ? (done * 100 / total) : 0;
+
+        _quickSortSteps.Add(new MergeStep
         {
-            Text = $"Многопутевое слияние: {done}/{total} ({progress}%)",
-            BgColor = "#e3f2fd",
+            Text = $"Многопутевое слияние: {done}/{total} строк ({progress}%)",
+            BgColor = "#e8f5e9",
             IsTitle = true
         });
 
-        // Получаем все головы из heap
+        // КЛЮЧЕВОЕ: Принудительно собираем ВСЕ элементы из кучи
         var heads = heap.UnorderedItems
                         .Select(x => x.Element)
+                        .OrderBy(n => n.FileIndex)
                         .ToList();
 
-        // Группируем по чётности индекса файла
-        var evenHeads = heads.Where(n => n.FileIndex % 2 == 0)
-                             .OrderBy(n => n.FileIndex)
-                             .ToList();
-
-        var oddHeads = heads.Where(n => n.FileIndex % 2 == 1)
-                            .OrderBy(n => n.FileIndex)
-                            .ToList();
-
-        // === MergeLeft: чётные файлы (0, 2, 4, ...) ===
-        foreach (var node in evenHeads)
+        if (heads.Count == 0)
         {
-            bool isSelected = selected != null && node.FileIndex == selected.FileIndex;
-            _mergeLeft.Add(new MergeStep
+            _quickSortSteps.Add(new MergeStep
             {
-                Text = $"Ф{node.FileIndex + 1}: {string.Join(" | ", node.Row)}",
-                BgColor = isSelected ? "#42a5f5" : "#bbdefb",
-                ShowArrow = isSelected
+                Text = "Слияние завершено — куча пуста",
+                BgColor = "#fff3e0",
+                IsTitle = true
             });
         }
-
-        // === MergeRight: нечётные файлы (1, 3, 5, ...) ===
-        foreach (var node in oddHeads)
+        else
         {
-            bool isSelected = selected != null && node.FileIndex == selected.FileIndex;
-            _mergeRight.Add(new MergeStep
+            _quickSortSteps.Add(new MergeStep
             {
-                Text = $"Ф{node.FileIndex + 1}: {string.Join(" | ", node.Row)}",
-                BgColor = isSelected ? "#66bb6a" : "#c8e6c9",
-                ShowArrow = isSelected
+                Text = $"min-heap: {heads.Count} активных файлов",
+                BgColor = "#fff3e0",
+                IsTitle = true
             });
+
+            foreach (var node in heads)
+            {
+                bool isSelected = selected != null && node.FileIndex == selected.FileIndex;
+                string keyVal = node.IsNumeric ? node.NumericValue.ToString("G") : $"\"{node.Key}\"";
+
+                _quickSortSteps.Add(new MergeStep
+                {
+                    Text = $"Файл {node.FileIndex + 1}: [{keyVal}] → {string.Join(" | ", node.Row)}",
+                    BgColor = isSelected ? "#ff7043" : "#ffe0b2",
+                    BorderColor = isSelected ? "#d84315" : "#fb8c00",
+                    BorderThickness = isSelected ? 3 : 1,
+                    ShowArrow = isSelected
+                });
+            }
+
+            // Подсказка: следующий минимум
+            if (selected == null && heads.Count > 0)
+            {
+                var nextMin = heads.MinBy(h => h);
+                string nextKey = nextMin.IsNumeric ? nextMin.NumericValue.ToString("G") : nextMin.Key;
+                _quickSortSteps.Add(new MergeStep
+                {
+                    Text = $"Следующий минимум → Файл {nextMin.FileIndex + 1}: [{nextKey}]",
+                    BgColor = "#e8f5e9",
+                    IsTitle = true
+                });
+            }
         }
 
-        // === Результат: последние 10 строк ===
+        // Результат
+        _quickSortSteps.Add(new MergeStep
+        {
+            Text = "Результат (последние 10 строк):",
+            BgColor = "#f5f5f5",
+            IsTitle = true
+        });
         foreach (var line in _resultBuffer)
         {
-            _mergeResult.Add(new MergeStep { Text = line, BgColor = "#e0e0e0" });
+            _quickSortSteps.Add(new MergeStep { Text = "→ " + line, BgColor = "#fafafa" });
         }
+
     }, DispatcherPriority.Render);
 
     await Task.Delay(delay);
@@ -793,3 +790,4 @@ private async Task<int> PartitionLomuto(
 
     #endregion
 }
+// </DOCUMENT>

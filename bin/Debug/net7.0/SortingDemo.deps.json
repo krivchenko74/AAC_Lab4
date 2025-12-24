@@ -13,8 +13,8 @@
           "Avalonia.Desktop": "11.3.8",
           "Avalonia.ReactiveUI": "11.2.0",
           "Avalonia.Themes.Fluent": "11.2.0",
-          "OxyPlot.Avalonia": "2.1.0",
-          "OxyPlot.Core": "2.2.0"
+          "Oxyplot.Avalonia": "2.1.0-Avalonia11",
+          "OxyPlot.Core": "2.1.0"
         },
         "runtime": {
           "SortingDemo.dll": {}
@@ -347,10 +347,10 @@
           }
         }
       },
-      "OxyPlot.Avalonia/2.1.0": {
+      "Oxyplot.Avalonia/2.1.0-Avalonia11": {
         "dependencies": {
           "Avalonia": "11.3.8",
-          "OxyPlot.Core": "2.2.0"
+          "OxyPlot.Core": "2.1.0"
         },
         "runtime": {
           "lib/netstandard2.0/OxyPlot.Avalonia.dll": {
@@ -359,11 +359,11 @@
           }
         }
       },
-      "OxyPlot.Core/2.2.0": {
+      "OxyPlot.Core/2.1.0": {
         "runtime": {
-          "lib/net6.0/OxyPlot.dll": {
-            "assemblyVersion": "2.2.0.0",
-            "fileVersion": "2.2.0.0"
+          "lib/netstandard2.0/OxyPlot.dll": {
+            "assemblyVersion": "2.1.0.0",
+            "fileVersion": "2.1.0.0"
           }
         }
       },
@@ -668,19 +668,19 @@
       "path": "microcom.runtime/0.11.0",
       "hashPath": "microcom.runtime.0.11.0.nupkg.sha512"
     },
-    "OxyPlot.Avalonia/2.1.0": {
+    "Oxyplot.Avalonia/2.1.0-Avalonia11": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-eYIRqGFeIKg2Iv4kdcfxbQvfqmApqBe556WZjlQ0MU3gH+KRVetigYSFFi74yyUEFLI9kbNwAvS41FeTHgZBrQ==",
-      "path": "oxyplot.avalonia/2.1.0",
-      "hashPath": "oxyplot.avalonia.2.1.0.nupkg.sha512"
+      "sha512": "sha512-+Duyr4oXKWOBW0hYHb7vK502XPyNeLsc7bLjB8VW4UHXkT7mlGJFuc1GffspsNgdg5tgR/dcOcydoc6rK5zhzQ==",
+      "path": "oxyplot.avalonia/2.1.0-avalonia11",
+      "hashPath": "oxyplot.avalonia.2.1.0-avalonia11.nupkg.sha512"
     },
-    "OxyPlot.Core/2.2.0": {
+    "OxyPlot.Core/2.1.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-QhXNdXR5FPpro/VoLx3BOp6AhQo7YrbfmWEZ9cgY+pnYM7RYORZjnu+aDMA8ka9A1r8hLkX//NbCPZNUv+l8qA==",
-      "path": "oxyplot.core/2.2.0",
-      "hashPath": "oxyplot.core.2.2.0.nupkg.sha512"
+      "sha512": "sha512-jG+Ct3T59fXDG2LE1hyUaXqH7i+h5Nfway1iB0+0NaY2mvDsz8Row/BKjiBWCt5NHp3+q9JSMiD2wpin2hh3kw==",
+      "path": "oxyplot.core/2.1.0",
+      "hashPath": "oxyplot.core.2.1.0.nupkg.sha512"
     },
     "ReactiveUI/20.1.1": {
       "type": "package",

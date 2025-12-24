@@ -1,0 +1,50 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:oxy="http://oxyplot.org/avalonia"
+             x:Class="SortingDemo.Tasks.Task3">
+    
+    <oxy:Plot x:Name="PlotControl"
+              Title="Сравнение QuickSort (Lomuto) и Radix Sort (LSC)"
+              FontSize="14"
+              Background="#FFF8F8F8"
+              PlotAreaBorderThickness="1">
+
+        <oxy:Plot.Axes>
+            <oxy:LinearAxis Position="Bottom"
+                            Title="Количество слов"
+                            Minimum="0"
+                            MajorGridlineStyle="Dash"
+                            MajorGridlineColor="#33000000" />
+
+            <oxy:LinearAxis Position="Left"
+                            Title="Время (мс)"
+                            Minimum="0"
+                            MajorGridlineStyle="Dash"
+                            MajorGridlineColor="#33000000" />
+        </oxy:Plot.Axes>
+
+        <oxy:Plot.Series>
+            <!-- Красный: QuickSort -->
+            <oxy:LineSeries x:Name="QuickSortSeries"
+                            ItemsSource="{Binding QuickSortTimes}"
+                            Title="QuickSort (Lomuto)"
+                            Color="#FFCC0000"
+                            StrokeThickness="2.5"
+                            MarkerType="Circle"
+                            MarkerSize="2"
+                            MarkerFill="#FFCC0000"
+                            MarkerStroke="#FFCC0000" />
+
+            <!-- Синий: Radix Sort (LSD) -->
+            <oxy:LineSeries x:Name="RadixSortSeries"
+                            ItemsSource="{Binding RadixSortTimes}"
+                            Title="Radix Sort (LSС)"
+                            Color="#FF0066CC"
+                            StrokeThickness="2.5"
+                            MarkerType="Square"
+                            MarkerSize="2"
+                            MarkerFill="#FF0066CC"
+                            MarkerStroke="#FF0066CC" />
+        </oxy:Plot.Series>
+    </oxy:Plot>
+</UserControl>

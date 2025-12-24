@@ -13,8 +13,8 @@
     <PackageReference Include="Avalonia.Desktop" Version="11.3.8" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.1.8" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.8" />
-    <PackageReference Include="OxyPlot.Avalonia" Version="2.1.0" />
-    <PackageReference Include="OxyPlot.Core" Version="2.2.0" />
+    <PackageReference Include="OxyPlot.Avalonia" Version="2.1.0-Avalonia11" />
+    <PackageReference Include="OxyPlot.Core" Version="2.1.0" />
   </ItemGroup>
 
 </Project>

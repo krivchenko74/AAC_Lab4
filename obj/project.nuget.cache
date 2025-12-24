@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "b1z8UcM6Vxo=",
+  "dgSpecHash": "NPlCG4V2nF8=",
   "success": true,
   "projectFilePath": "/Users/slava/Downloads/SortingDemo_final/SortingDemo.csproj",
   "expectedPackageFiles": [
@@ -24,8 +24,8 @@
     "/Users/slava/.nuget/packages/harfbuzzsharp.nativeassets.webassembly/8.3.1.1/harfbuzzsharp.nativeassets.webassembly.8.3.1.1.nupkg.sha512",
     "/Users/slava/.nuget/packages/harfbuzzsharp.nativeassets.win32/8.3.1.1/harfbuzzsharp.nativeassets.win32.8.3.1.1.nupkg.sha512",
     "/Users/slava/.nuget/packages/microcom.runtime/0.11.0/microcom.runtime.0.11.0.nupkg.sha512",
-    "/Users/slava/.nuget/packages/oxyplot.avalonia/2.1.0/oxyplot.avalonia.2.1.0.nupkg.sha512",
-    "/Users/slava/.nuget/packages/oxyplot.core/2.2.0/oxyplot.core.2.2.0.nupkg.sha512",
+    "/Users/slava/.nuget/packages/oxyplot.avalonia/2.1.0-avalonia11/oxyplot.avalonia.2.1.0-avalonia11.nupkg.sha512",
+    "/Users/slava/.nuget/packages/oxyplot.core/2.1.0/oxyplot.core.2.1.0.nupkg.sha512",
     "/Users/slava/.nuget/packages/reactiveui/20.1.1/reactiveui.20.1.1.nupkg.sha512",
     "/Users/slava/.nuget/packages/skiasharp/2.88.9/skiasharp.2.88.9.nupkg.sha512",
     "/Users/slava/.nuget/packages/skiasharp.nativeassets.linux/2.88.9/skiasharp.nativeassets.linux.2.88.9.nupkg.sha512",
